@@ -32,7 +32,7 @@ class Validators {
     if (strongPasswordRegex.hasMatch(value)) {
       return null;
     } else {
-      return 'Password must be at least 8 characters, include upper & lowercase letters, a number and a special character';
+      return '8 characters,upper & lowercase letters,a number and a special character';
     }
   }
 }

@@ -30,6 +30,12 @@ final TextTheme myFontTheme = baseFontTheme.copyWith(
     fontWeight: FontWeight.w400,
     letterSpacing: 1.0,
   ),
+
+  bodySmall: baseFontTheme.bodySmall?.copyWith(
+    fontSize: 8,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 1.0,
+  ),
 );
 
 // TextField Theme
@@ -54,9 +60,11 @@ final InputDecorationTheme myInputDecorationTheme = InputDecorationTheme(
   focusedBorder: baseOutlineInputBorder.copyWith(
     borderSide: BorderSide(color: AppColors.greyAccentColor),
   ),
-  errorBorder: baseOutlineInputBorder.copyWith(
-    borderSide: BorderSide(color: AppColors.errorColor),
-  ),
+  // errorBorder: baseOutlineInputBorder.copyWith(
+  //   borderSide: BorderSide(color: AppColors.errorColor),
+  // ),
+  errorBorder: baseOutlineInputBorder,
+
   focusedErrorBorder: baseOutlineInputBorder.copyWith(
     borderSide: BorderSide(color: AppColors.greyAccentColor),
   ),
