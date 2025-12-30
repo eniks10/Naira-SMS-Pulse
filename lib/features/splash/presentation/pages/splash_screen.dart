@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: BlocListener<SplashCubit, SplashState>(
         listener: (context, state) {
-          if (state is AuthenticatedState) {
+          if (state is UnAuthenticatedState) {
             Navigator.pushReplacementNamed(context, AuthBridge.routeName);
           }
         },

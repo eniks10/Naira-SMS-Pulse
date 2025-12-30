@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:naira_sms_pulse/core/network/error/app_errors.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ErrorHandler {
   // Handle DioException
@@ -152,6 +156,187 @@ class ErrorHandler {
       errorType: errorType,
       code: statuscode.toString(),
       originalException: error,
+    );
+  }
+
+  //Handle SupaBase Exception
+  static AppErrors handleSupabaseException(dynamic error) {
+    if (error is AuthException) {
+      return _handleAuthException(error);
+    } else if (error is PostgrestException) {
+      return _handlePosPostgrestException(error);
+    } else if (error is StorageException) {
+      return _handleStorageException(error);
+    }
+    return AppErrors.server(
+      errorMessage: error,
+      userMessage: 'An unexpected error occurred. Please try again.',
+      originalException: error is Exception
+          ? error
+          : Exception(error.toString()),
+    );
+  }
+
+  static AppErrors _handleAuthException(AuthException error) {
+    // Log the error for debugging
+    final message = error.message.toLowerCase();
+    final statusCode = error.statusCode;
+
+    // A. Invalid Credentials (Login)
+    if (message.contains('invalid login credentials')) {
+      return AppErrors.authentication(
+        errorMessage: 'Invalid Credentials: ${error.message}',
+        userMessage: 'Incorrect email or password.',
+        originalException: error,
+      );
+    }
+
+    // B. User Already Exists (Sign Up)
+    if (message.contains('user already registered') ||
+        message.contains('already registered') ||
+        (statusCode == '422' && message.contains('email'))) {
+      // Supabase sometimes sends 422 for this
+      return AppErrors.validation(
+        errorMessage: 'Duplicate Email: ${error.message}',
+        userMessage:
+            'This email is already associated with an account. Try signing in.',
+        originalException: error,
+      );
+    }
+
+    // C. Validation (Weak Password, Bad Email)
+    if (message.contains('password should be') ||
+        message.contains('validation failed') ||
+        statusCode == '422') {
+      return AppErrors.validation(
+        errorMessage: 'Validation Error: ${error.message}',
+        userMessage: error
+            .message, // Usually safe to show "Password must be 6 chars" directly
+        originalException: error,
+      );
+    }
+
+    // D. Rate Limiting (Too many requests)
+    if (statusCode == '429' || message.contains('rate limit')) {
+      return AppErrors(
+        // Or AppErrors.server if you prefer
+        errorMessage: 'Rate Limit: ${error.message}',
+        userMessage:
+            'Too many attempts. Please wait a moment before trying again.',
+        originalException: error,
+        errorType: ErrorType.client,
+      );
+    }
+
+    // E. Default Auth Fallback
+    return AppErrors.authentication(
+      errorMessage: 'Auth Error: ${error.message}',
+      userMessage: 'Authentication failed. Please try again.',
+      originalException: error,
+    );
+  }
+
+  static AppErrors _handlePosPostgrestException(PostgrestException error) {
+    final code = error.code; // Postgres Error Codes (e.g., '23505')
+
+    switch (code) {
+      // Unique Violation (e.g., trying to save a duplicate username)
+      case '23505':
+        return AppErrors(
+          errorMessage: 'Duplicate Entry: ${error.message}',
+          userMessage: 'This record already exists.',
+          originalException: error,
+          code: code,
+          errorType: ErrorType.validation,
+        );
+
+      // Foreign Key Violation (e.g., trying to save a Transaction for a non-existent User)
+      case '23503':
+        return AppErrors(
+          errorMessage: 'Foreign Key Constraint: ${error.message}',
+          userMessage: 'Operation failed due to invalid reference.',
+          originalException: error,
+          code: code,
+          errorType: ErrorType.client,
+        );
+
+      // Connection/Network issues often show up as specific low-level codes or null details
+      // You might need to check if the error details imply a socket error.
+
+      // Row Level Security (RLS) Policy Violation
+      case '42501':
+        return AppErrors(
+          errorMessage: 'RLS Policy Violation: ${error.message}',
+          userMessage: 'You do not have permission to access this data.',
+          originalException: error,
+          code: code,
+          errorType: ErrorType.authorization,
+        );
+
+      // Default DB Fallback
+      default:
+        return AppErrors.server(
+          errorMessage: 'Database Error ($code): ${error.message}',
+          userMessage: 'Something went wrong with the database.',
+          originalException: error,
+          code: code,
+        );
+    }
+  }
+
+  static AppErrors _handleStorageException(StorageException error) {
+    return AppErrors.server(
+      errorMessage: 'Storage Error: ${error.message}',
+      userMessage: 'Failed to upload or retrieve file.',
+      originalException: error,
+      code: error.statusCode,
+    );
+  }
+
+  static AppErrors handleCompleteErrors(dynamic error) {
+    if (error is AppErrors) return error;
+
+    if (error is TimeoutException ||
+        error is SocketException ||
+        error.toString().toLowerCase().contains('socketexception') ||
+        error.toString().toLowerCase().contains('connection refused')) {
+      return _handleNetworkException(error);
+    }
+
+    if (error is AuthException ||
+        error is PostgrestException ||
+        error is StorageException) {
+      return handleSupabaseException(error);
+    }
+
+    return AppErrors(
+      errorMessage: error.toString(),
+      userMessage: 'An unexpected error occurred. Please try again.',
+      errorType: ErrorType.unknown,
+      originalException: error is Exception
+          ? error
+          : Exception(error.toString()),
+    );
+  }
+
+  static AppErrors _handleNetworkException(dynamic error) {
+    if (error is TimeoutException) {
+      return AppErrors.network(
+        errorMessage: 'Connection Timeout: $error',
+        userMessage: 'The request took too long. Please check your connection.',
+        originalException: error is Exception
+            ? error
+            : Exception(error.toString()),
+      );
+    }
+
+    // Default to SocketException (No Internet)
+    return AppErrors.network(
+      errorMessage: 'Network Error: $error',
+      userMessage: 'No internet connection. Please check your settings.',
+      originalException: error is Exception
+          ? error
+          : Exception(error.toString()),
     );
   }
 }
