@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:naira_sms_pulse/core/config/theme/app_colors.dart';
 import 'package:naira_sms_pulse/core/helpers/dimensions.dart';
+import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/auth_bridge.dart';
+import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_bridge.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/cubit/splash_cubit.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/widgets/animated_pulse_painter.dart';
 
@@ -22,6 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    context.read<AuthBloc>().add(AuthCheckRequested());
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2500), // 2.5 seconds to draw
@@ -63,6 +66,8 @@ class _SplashScreenState extends State<SplashScreen>
         listener: (context, state) {
           if (state is UnAuthenticatedState) {
             Navigator.pushReplacementNamed(context, AuthBridge.routeName);
+          } else if (state is AuthenticatedState) {
+            Navigator.pushReplacementNamed(context, OnboardingBridge.routeName);
           }
         },
         child: SafeArea(

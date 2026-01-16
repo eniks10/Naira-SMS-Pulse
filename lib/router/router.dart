@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:naira_sms_pulse/core/models/transaction_model.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/auth_bridge.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:naira_sms_pulse/features/home/presentation/bloc/home_state.dart';
+import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
+import 'package:naira_sms_pulse/features/home/presentation/pages/transaction_details_page.dart';
+import 'package:naira_sms_pulse/features/main_layout/presentation/pages/main_layout_page.dart';
+import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_bridge.dart';
+import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/pages/splash_screen.dart';
 import 'package:naira_sms_pulse/router/navigation_animation.dart';
 
@@ -27,6 +34,43 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
 
     case AuthBridge.routeName:
       return NavigationAnimation(page: AuthBridge());
+
+    case OnboardingPage.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) => OnboardingPage(),
+      );
+
+    case OnboardingBridge.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) => OnboardingBridge(),
+      );
+
+    case HomePage.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) => HomePage(),
+      );
+
+    case MainLayoutPage.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) => MainLayoutPage(),
+      );
+
+    case TransactionDetailsPage.routeName:
+      final args = routeSettings.arguments as Map<String, dynamic>;
+
+      // var transaction = routeSettings.arguments as TransactionModel;
+      // var state = routeSettings.arguments as HomeState;
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) => TransactionDetailsPage(
+          transaction: args['transaction'],
+          state: args['state'],
+        ),
+      );
 
     default:
       return MaterialPageRoute(

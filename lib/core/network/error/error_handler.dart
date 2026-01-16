@@ -324,9 +324,7 @@ class ErrorHandler {
       return AppErrors.network(
         errorMessage: 'Connection Timeout: $error',
         userMessage: 'The request took too long. Please check your connection.',
-        originalException: error is Exception
-            ? error
-            : Exception(error.toString()),
+        originalException: Exception(error.toString()),
       );
     }
 

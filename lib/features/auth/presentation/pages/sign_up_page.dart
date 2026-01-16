@@ -11,6 +11,7 @@ import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_state.dart'
 import 'package:naira_sms_pulse/features/auth/presentation/widgets/auth_button.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/widgets/auth_text_form_field.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/widgets/loading_overlay.dart';
+import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_bridge.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/widgets/animated_pulse_painter.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -85,6 +86,8 @@ class _SignUpPageState extends State<SignUpPage>
           }
 
           if (state.isSuccess) {
+            Navigator.pushReplacementNamed(context, OnboardingBridge.routeName);
+
             AppAlerts.shoeSuccess(context: context, message: 'Welcome!');
           }
         },

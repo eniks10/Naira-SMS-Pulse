@@ -35,4 +35,18 @@ class Validators {
       return '8 characters,upper & lowercase letters,a number and a special character';
     }
   }
+
+  static String? validateCategoryCreation(String? value) {
+    final RegExp fullNameRegex = RegExp(r"^[a-zA-Z]+([ '-][a-zA-Z]+)*$");
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+
+    // 2. Check length (trim() removes whitespace)
+    if (value.trim().length < 3) {
+      return 'Must be at least 3 letters';
+    }
+
+    return null; // Valid
+  }
 }

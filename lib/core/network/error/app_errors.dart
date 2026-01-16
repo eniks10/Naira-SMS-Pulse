@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 //Client majorly front dev issue with the url/ required paprameters and other
 //Validation major in the app by the user. Chnage what you wrote and the issue leaves(conflicts etc)
 enum ErrorType {

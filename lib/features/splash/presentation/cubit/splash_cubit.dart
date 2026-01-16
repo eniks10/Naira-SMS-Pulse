@@ -12,15 +12,19 @@ class SplashCubit extends Cubit<SplashState> {
 
   Future<void> checkAuthStatusAndNavigate() async {
     final localUser = _authRepo.currentUser;
+    print('HII${localUser}');
     if (localUser != null) {
       final result = await _authRepo.refreshSession();
 
       result.match(
         (result) async {
+          print('User Absent');
+
           await _authRepo.logOut();
           emit(UnAuthenticatedState());
         },
         (result) {
+          print('User present');
           emit(AuthenticatedState());
         },
       );
