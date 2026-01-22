@@ -5,6 +5,7 @@ import 'package:naira_sms_pulse/core/database/local_db_service.dart';
 import 'package:naira_sms_pulse/core/database/transaction_entity.dart';
 import 'package:naira_sms_pulse/core/helpers/sms_miner_service.dart';
 import 'package:naira_sms_pulse/core/network/local/shared_preferences_service.dart';
+import 'package:naira_sms_pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:naira_sms_pulse/features/auth/data/datasources/auth_service.dart';
 import 'package:naira_sms_pulse/features/auth/data/repository/auth_repo_impli.dart';
 import 'package:naira_sms_pulse/features/auth/domian/repository/auth_repo.dart';
@@ -36,6 +37,7 @@ Future<void> initDependencies() async {
   _intiSmsMiningService();
   _initNavNavigation();
   _initHome();
+  _initActivity();
 }
 
 _initSupabase() {
@@ -78,6 +80,20 @@ _initHome() {
       localDbService: sl(),
       authRepository: sl(),
       smsMiner: sl(),
+      onboardingDataSource: sl(),
+    ),
+  );
+}
+
+_initActivity() {
+  //sl.registerLazySingleton<AuthService>(() => AuthServiceImplementation(sl()));
+  // sl.registerLazySingleton<AuthRepository>(
+  //   () => AuthRepositoryImplementation(sl(), sl()),
+  // );
+  sl.registerFactory<ActivityBloc>(
+    () => ActivityBloc(
+      localDbService: sl(),
+      authRepository: sl(),
       onboardingDataSource: sl(),
     ),
   );

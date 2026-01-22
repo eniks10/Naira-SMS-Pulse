@@ -52,6 +52,7 @@ dependencies:
   isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.5
   flutter_iconpicker: ^4.0.3
+  calendar_date_picker2: ^2.0.1
 
 dev_dependencies:
   flutter_test:

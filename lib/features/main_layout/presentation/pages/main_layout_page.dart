@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:naira_sms_pulse/core/config/theme/app_colors.dart';
+import 'package:naira_sms_pulse/features/activity/presentation/pages/activity_page.dart';
 import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/cubit/navnavidation_cubit.dart';
 import 'package:naira_sms_pulse/service_locater.dart';
@@ -16,7 +17,7 @@ class MainLayoutPage extends StatefulWidget {
 class _MainLayoutPageState extends State<MainLayoutPage> {
   final List<Widget> _pages = const [
     HomePage(),
-    HomePage(),
+    ActivityPage(),
     HomePage(),
     HomePage(),
     // InsightsPage(),

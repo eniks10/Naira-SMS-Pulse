@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:naira_sms_pulse/core/config/theme/app_theme.dart';
+import 'package:naira_sms_pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:naira_sms_pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/cubit/navnavidation_cubit.dart';
@@ -35,6 +36,8 @@ void main() async {
         BlocProvider(create: (_) => sl<NavnavidationCubit>()),
 
         BlocProvider(create: (_) => sl<HomeBloc>()),
+
+        BlocProvider(create: (_) => sl<ActivityBloc>()),
       ],
       child: const MyApp(),
     ),

@@ -185,17 +185,17 @@ class LocalDbService {
 
   //   // Map your Gemini Defaults to Icons here
   //   final Map<String, IconData> defaults = {
-  //     'Food & Groceries': Icons.fastfood_rounded,
-  //     'Transport': Icons.directions_car_rounded,
-  //     'Shopping': Icons.shopping_bag_rounded,
-  //     'Bills & Utilities': Icons.receipt_long_rounded,
-  //     'Data and Airtime': Icons.phone,
-  //     'Subscriptions': Icons.subscriptions_rounded,
-  //     'Pos Withdrawals & Payments': Icons.point_of_sale_rounded,
-  //     'Health': Icons.local_hospital_rounded,
-  //     'Tithe & Offering': Icons.church_rounded,
-  //     'Giving': Icons.card_giftcard_rounded,
-  //     'Uncategorized': Icons.help_outline_rounded,
+  // 'Food & Groceries': Icons.fastfood_rounded,
+  // 'Transport': Icons.directions_car_rounded,
+  // 'Shopping': Icons.shopping_bag_rounded,
+  // 'Bills & Utilities': Icons.receipt_long_rounded,
+  // 'Data and Airtime': Icons.phone,
+  // 'Subscriptions': Icons.subscriptions_rounded,
+  // 'Pos Withdrawals & Payments': Icons.point_of_sale_rounded,
+  // 'Health': Icons.local_hospital_rounded,
+  // 'Tithe & Offering': Icons.church_rounded,
+  // 'Giving': Icons.card_giftcard_rounded,
+  // 'Uncategorized': Icons.help_outline_rounded,
 
   //     // --- NEW INCOME CATEGORIES (Tax Reform Logic) ---
   //     'Taxable Income': Icons.balance_rounded, // Icon implies official/gov
@@ -228,7 +228,10 @@ class LocalDbService {
       'Bills & Utilities': Icons.receipt_long_rounded,
       'Data and Airtime': Icons.phone,
       'Subscriptions': Icons.subscriptions_rounded,
+      'Pos Withdrawals & Payments': Icons.point_of_sale_rounded,
       'Health': Icons.local_hospital_rounded,
+      'Tithe & Offering': Icons.church_rounded,
+      'Giving': Icons.card_giftcard_rounded,
       'Uncategorized': Icons.help_outline_rounded,
       'Taxable Income': Icons.account_balance_rounded,
       'Non-Taxable Income': Icons.savings_rounded,
@@ -288,5 +291,90 @@ class LocalDbService {
     await isar.writeTxn(() async {
       await isar.categoryEntitys.put(newCat);
     });
+  }
+
+  Future<List<TransactionEntity>> getTransactionsByDateRange({
+    required String userId,
+    required DateTimeRange dateTimeRange,
+  }) async {
+    return await isar.transactionEntitys
+        .filter()
+        .userIdEqualTo(userId)
+        .and()
+        .dateBetween(
+          dateTimeRange.start,
+          dateTimeRange.end,
+        ) // 👈 The Magic Filter
+        .sortByDateDesc()
+        .findAll();
+  }
+
+  Future<List<TransactionEntity>> getTransactionsByCategories({
+    required String userId,
+    required List<String> categories,
+  }) async {
+    if (categories.isEmpty) return [];
+
+    return await isar.transactionEntitys
+        .filter()
+        .userIdEqualTo(userId)
+        .group((q) {
+          // 👇 THE FIX: Use .anyOf() to handle the loop cleanly
+          return q.anyOf(
+            categories,
+            (q, String category) => q.categoryNameEqualTo(category),
+          );
+        })
+        .sortByDateDesc()
+        .findAll();
+  }
+
+  // 🔍 UNIFIED FILTER METHOD
+  Future<List<TransactionEntity>> getFilteredTransactions({
+    required String userId,
+    DateTimeRange? dateRange,
+    List<String>? categories,
+    int? bankId,
+  }) async {
+    List<TransactionEntity> results;
+
+    // 1. PRIMARY QUERY (Isar)
+    // Date is the most efficient filter, so we ask the DB for that first.
+    if (dateRange != null) {
+      results = await isar.transactionEntitys
+          .filter()
+          .userIdEqualTo(userId)
+          .dateBetween(dateRange.start, dateRange.end)
+          .findAll();
+    } else {
+      // If no date selected, get everything (or you could limit to last 30 days)
+      results = await isar.transactionEntitys
+          .filter()
+          .userIdEqualTo(userId)
+          .findAll();
+    }
+
+    // 2. SECONDARY FILTERS (Dart Memory)
+    // This effectively chains the filters together
+    final finalResults = results.where((t) {
+      // A. Check Bank
+      if (bankId != null && t.bankId != bankId) {
+        return false; // Skip if bank doesn't match
+      }
+
+      // B. Check Categories
+      if (categories != null && categories.isNotEmpty) {
+        if (!categories.contains(t.categoryName)) {
+          return false; // Skip if category is not in the list
+        }
+      }
+
+      return true; // Keep it
+    }).toList();
+
+    // 3. Sort Newest First
+    finalResults.sort((a, b) => b.date.compareTo(a.date));
+
+    return finalResults;
   }
 }

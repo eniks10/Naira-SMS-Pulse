@@ -5,6 +5,7 @@ import 'package:naira_sms_pulse/core/config/asset/app_icons.dart';
 import 'package:naira_sms_pulse/core/config/theme/app_colors.dart';
 import 'package:naira_sms_pulse/core/helpers/alerts.dart';
 import 'package:naira_sms_pulse/core/helpers/dimensions.dart';
+import 'package:naira_sms_pulse/core/models/transaction_model.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:naira_sms_pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:naira_sms_pulse/features/home/presentation/bloc/home_state.dart';
@@ -79,7 +80,8 @@ class _HomePageState extends State<HomePage> {
                             style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(
                                   color: AppColors.secondaryColor,
-                                  wordSpacing: -5,
+                                  // wordSpacing: -5,
+                                  letterSpacing: -1,
                                 ),
                           ),
 
@@ -219,7 +221,36 @@ class _HomePageState extends State<HomePage> {
                           onTap: () => Navigator.pushNamed(
                             context,
                             TransactionDetailsPage.routeName,
-                            arguments: {'transaction': txn, 'state': state},
+                            arguments: {
+                              'transaction': txn,
+
+                              // Pass Data
+                              'categoryNames': state.categoryNames,
+                              'categoryIcons': state.categoryIcons,
+
+                              // Pass Functions
+                              'onCategoryChanged':
+                                  (
+                                    TransactionModel transaction,
+                                    String newCategory,
+                                  ) {
+                                    context.read<HomeBloc>().add(
+                                      ChangeCategoryEvent(
+                                        transaction,
+                                        newCategory,
+                                      ),
+                                    );
+                                  },
+                              'onCategoryAdded':
+                                  (String name, String iconData) {
+                                    context.read<HomeBloc>().add(
+                                      AddNewCategoryEvent(
+                                        name: name,
+                                        iconJson: iconData,
+                                      ),
+                                    );
+                                  },
+                            },
                           ),
                           child: TransactionTile(
                             transaction: txn,

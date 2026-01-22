@@ -313,29 +313,47 @@ class SmsMinerService {
   //   required bool isCredit,
   // }) async {
   //   final List<TransactionModel> finalResults = [];
-  //   int batchSize = 30;
+  //   int batchSize = 10;
 
   //   for (var i = 0; i < transactions.length; i += batchSize) {
   //     final end = (i + batchSize < transactions.length)
   //         ? i + batchSize
   //         : transactions.length;
   //     final batch = transactions.sublist(i, end);
-
   //     final descriptions = batch.map((t) => t.description).toList();
 
-  //     // 🚀 Call AI with the SPECIFIC category list
-  //     final aiResults = await GeminiCategorizer.analyzeBatch(
-  //       descriptions,
-  //       categories,
-  //     );
+  //     List<GeminiData>? aiResults;
+  //     int retryCount = 0;
+  //     bool success = false;
 
-  //     bool batchFailed = (aiResults == null);
+  //     // 🔄 ROBUST RETRY LOOP
+  //     while (retryCount < 3 && !success) {
+  //       aiResults = await GeminiCategorizer.analyzeBatch(
+  //         descriptions,
+  //         categories,
+  //       );
 
+  //       if (aiResults != null) {
+  //         success = true;
+  //       } else {
+  //         // 🛑 CALCULATE WAIT TIME (Exponential Backoff)
+  //         // Retry 1: Wait 60s (Safe for the 51s error)
+  //         // Retry 2: Wait 120s
+  //         // Retry 3: Wait 180s
+  //         final waitTime = (retryCount + 1) * 60;
+
+  //         print("⏳ Quota hit. Waiting ${waitTime}s to clear penalty box...");
+  //         await Future.delayed(Duration(seconds: waitTime));
+
+  //         retryCount++;
+  //       }
+  //     }
+
+  //     // Process results
   //     for (var j = 0; j < batch.length; j++) {
   //       var txn = batch[j];
 
-  //       // If AI worked
-  //       if (!batchFailed && j < aiResults!.length) {
+  //       if (success && j < aiResults!.length) {
   //         final result = aiResults[j];
   //         finalResults.add(
   //           txn.copyWith(
@@ -345,19 +363,20 @@ class SmsMinerService {
   //           ),
   //         );
   //       } else {
-  //         // Fallback logic on failure
+  //         // Final Failure
   //         finalResults.add(
   //           txn.copyWith(
   //             isAiEnriched: false,
-  //             // If it failed, keep the default logic we set in the Parser
   //             categoryName: isCredit ? 'Taxable Income' : 'Uncategorized',
   //           ),
   //         );
   //       }
   //     }
 
-  //     // Small delay to prevent 429 Errors (Too Many Requests)
-  //     await Future.delayed(const Duration(milliseconds: 200));
+  //     // 🐢 STANDARD COOLDOWN
+  //     // Even on success, wait 10 seconds to be very safe with Free Tier
+  //     print("✅ Batch done. Cooling down for 10s...");
+  //     await Future.delayed(const Duration(seconds: 10));
   //   }
 
   //   // Save to DB
@@ -389,7 +408,8 @@ class SmsMinerService {
       final aiResults = await GeminiCategorizer.analyzeBatch(
         descriptions,
         categories,
-        isExpense: !isCredit, // 👈 Debit = Expense, Credit = Income
+        //   isExpense: !isCredit, // 👈 Debit = Expense, Credit = Income
+        isIncome: isCredit,
       );
 
       bool batchFailed = (aiResults == null);
@@ -419,7 +439,7 @@ class SmsMinerService {
       }
 
       // Small delay to prevent 429 Errors (Too Many Requests)
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(seconds: 60));
     }
 
     // Save to DB

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:naira_sms_pulse/core/models/transaction_model.dart';
+import 'package:naira_sms_pulse/features/activity/presentation/pages/activity_page.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/auth_bridge.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_up_page.dart';
@@ -59,17 +60,41 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         builder: (context) => MainLayoutPage(),
       );
 
+    // case TransactionDetailsPage.routeName:
+    //   final args = routeSettings.arguments as Map<String, dynamic>;
+
+    //   // var transaction = routeSettings.arguments as TransactionModel;
+    //   // var state = routeSettings.arguments as HomeState;
+    //   return MaterialPageRoute(
+    //     settings: routeSettings,
+    //     builder: (context) => TransactionDetailsPage(
+    //       transaction: args['transaction'],
+    //       state: args['state'],
+    //     ),
+    //   );
     case TransactionDetailsPage.routeName:
       final args = routeSettings.arguments as Map<String, dynamic>;
 
-      // var transaction = routeSettings.arguments as TransactionModel;
-      // var state = routeSettings.arguments as HomeState;
       return MaterialPageRoute(
         settings: routeSettings,
         builder: (context) => TransactionDetailsPage(
+          // 1. Pass the Transaction Model
           transaction: args['transaction'],
-          state: args['state'],
+
+          // 2. Pass the Data Lists
+          categoryNames: args['categoryNames'],
+          categoryIcons: args['categoryIcons'],
+
+          // 3. Pass the Functions (Callbacks)
+          onCategoryChanged: args['onCategoryChanged'],
+          onCategoryAdded: args['onCategoryAdded'],
         ),
+      );
+
+    case ActivityPage.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) => ActivityPage(),
       );
 
     default:
