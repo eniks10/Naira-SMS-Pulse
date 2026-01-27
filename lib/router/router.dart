@@ -7,6 +7,8 @@ import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_up_page.da
 import 'package:naira_sms_pulse/features/home/presentation/bloc/home_state.dart';
 import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
 import 'package:naira_sms_pulse/features/home/presentation/pages/transaction_details_page.dart';
+import 'package:naira_sms_pulse/features/insights/presentation/pages/insights_page.dart';
+import 'package:naira_sms_pulse/features/insights/presentation/pages/transaction_category_list_page.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/pages/main_layout_page.dart';
 import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_bridge.dart';
 import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_page.dart';
@@ -88,6 +90,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
           // 3. Pass the Functions (Callbacks)
           onCategoryChanged: args['onCategoryChanged'],
           onCategoryAdded: args['onCategoryAdded'],
+          onPartyChanged: args['onPartyChanged'],
         ),
       );
 
@@ -95,6 +98,21 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
       return MaterialPageRoute(
         settings: routeSettings,
         builder: (context) => ActivityPage(),
+      );
+
+    case InsightsPage.routeName:
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) => InsightsPage(),
+      );
+
+    case CategoryTransactionsPage.routeName:
+      final args = routeSettings.arguments as Map<String, dynamic>;
+
+      return MaterialPageRoute(
+        settings: routeSettings,
+        builder: (context) =>
+            CategoryTransactionsPage(categoryName: args['categoryName']),
       );
 
     default:

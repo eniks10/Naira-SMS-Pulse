@@ -30,3 +30,10 @@ class AddNewCategoryEvent extends ActivityEvent {
   final String iconJson;
   AddNewCategoryEvent({required this.name, required this.iconJson});
 }
+
+class UpdateTransactionPartyEvent extends ActivityEvent {
+  final TransactionModel transaction;
+  final String name;
+
+  UpdateTransactionPartyEvent({required this.transaction, required this.name});
+}

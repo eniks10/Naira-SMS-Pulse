@@ -15,7 +15,6 @@ import 'package:naira_sms_pulse/features/home/presentation/widgets/transaction_t
 class ActivityPage extends StatefulWidget {
   static const routeName = 'activity_page';
   const ActivityPage({super.key});
-
   @override
   State<ActivityPage> createState() => _ActivityPageState();
 }
@@ -941,6 +940,15 @@ class _ActivityPageState extends State<ActivityPage> {
                           AddNewCategoryEvent(name: name, iconJson: iconData),
                         );
                       },
+                      'onPartyChanged':
+                          (TransactionModel transaction, String newName) {
+                            context.read<ActivityBloc>().add(
+                              UpdateTransactionPartyEvent(
+                                transaction: transaction,
+                                name: newName,
+                              ),
+                            );
+                          },
                     },
                   ),
                   child: TransactionTile(transaction: item, categoryIcon: icon),

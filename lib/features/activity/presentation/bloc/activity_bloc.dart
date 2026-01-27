@@ -30,6 +30,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     on<SetDateFilterEvent>(_setDateFilterEvent);
     on<ChangeCategoryEvent>(_changeCategoryEvent);
     on<AddNewCategoryEvent>(_addNewCategoryEvent);
+    on<UpdateTransactionPartyEvent>(_updateTransactionPartyEvent);
   }
 
   FutureOr<void> _loadTransactions(
@@ -190,6 +191,44 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       );
     } catch (e) {
       print("Error adding category: $e");
+    }
+  }
+
+  FutureOr<void> _updateTransactionPartyEvent(
+    UpdateTransactionPartyEvent event,
+    Emitter<ActivityState> emit,
+  ) async {
+    // 1. Keep a reference to the OLD list (Safety Net)
+    final previousList = state.transactions;
+
+    // 2. Perform Optimistic Update (UI updates instantly)
+    final updatedList = state.transactions.map((t) {
+      if (t.id == event.transaction.id) {
+        // Update Name AND set isAiEnriched to true (since user manually fixed it)
+        return t.copyWith(transactionParty: event.name, isAiEnriched: true);
+      }
+      return t;
+    }).toList();
+
+    emit(state.copyWith(transactions: updatedList));
+
+    try {
+      // 3. Update Database
+      await _localDbService.updateTransactionParty(
+        id: event.transaction.id,
+        newName: event.name,
+      );
+    } catch (e) {
+      print("Failed to update TransactionParty: $e");
+
+      // 4. REVERT on Failure (Safety Net)
+      // If DB fails, put the old list back so UI doesn't lie to the user
+      emit(
+        state.copyWith(
+          transactions: previousList,
+          errorMessage: "Failed to save transaction party",
+        ),
+      );
     }
   }
 }

@@ -691,6 +691,7 @@ class TransactionDetailsPage extends StatefulWidget {
   // 2. ACTION CALLBACKS (What happens when we edit?)
   final Function(TransactionModel txn, String newCategory) onCategoryChanged;
   final Function(String name, String iconData) onCategoryAdded;
+  final Function(TransactionModel txn, String newName) onPartyChanged;
 
   const TransactionDetailsPage({
     super.key,
@@ -699,6 +700,7 @@ class TransactionDetailsPage extends StatefulWidget {
     required this.categoryIcons,
     required this.onCategoryChanged,
     required this.onCategoryAdded,
+    required this.onPartyChanged,
   });
 
   @override
@@ -870,6 +872,14 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
                                   ],
                                 ),
                               ),
+
+                              IconButton(
+                                onPressed: () {
+                                  _showEditPartyNameSheet();
+                                },
+                                icon: Icon(Icons.edit, size: 20),
+                                color: AppColors.greyAccentColor,
+                              ),
                             ],
                           ),
                           SizedBox(height: Dimensions.medium),
@@ -931,25 +941,25 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
               ),
 
               // --- SPLIT BUTTON ---
-              SizedBox(
-                width: double.infinity,
-                height: Dimensions.smallbuttonHeight,
-                child: OutlinedButton(
-                  onPressed: () {
-                    // Split logic here
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: AppColors.secondaryColor),
-                    backgroundColor: AppColors.primaryColor,
-                  ),
-                  child: Text(
-                    'Split Transaction',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: AppColors.secondaryColor,
-                    ),
-                  ),
-                ),
-              ),
+              // SizedBox(
+              //   width: double.infinity,
+              //   height: Dimensions.smallbuttonHeight,
+              //   child: OutlinedButton(
+              //     onPressed: () {
+              //       // Split logic here
+              //     },
+              //     style: OutlinedButton.styleFrom(
+              //       side: BorderSide(color: AppColors.secondaryColor),
+              //       backgroundColor: AppColors.primaryColor,
+              //     ),
+              //     child: Text(
+              //       'Split Transaction',
+              //       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              //         color: AppColors.secondaryColor,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -1177,6 +1187,141 @@ class _TransactionDetailsPageState extends State<TransactionDetailsPage> {
     // 2. Update the UI locally instantly
     setState(() {
       liveTransaction = liveTransaction.copyWith(categoryName: newCategory);
+    });
+  }
+
+  // --- LOGIC: EDIT PARTY NAME ---
+  void _showEditPartyNameSheet() {
+    final TextEditingController controller = TextEditingController(
+      text: liveTransaction.transactionParty,
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Padding(
+          // 1. Move the keyboard padding wrapper OUTSIDE the container
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.primaryColor,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            // 2. THE FIX: Wrap content in SingleChildScrollView
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20), // Move inner padding here
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Edit Transaction Name",
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.secondaryColor,
+                              ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Icon(Icons.close, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Text Field
+                    TextFormField(
+                      controller: controller,
+                      autofocus: true,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        //  labelText: "Merchant / Party Name",
+                        labelStyle: TextStyle(color: AppColors.greyAccentColor),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.thinGreyColor,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.secondaryColor,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: AppColors.thinTwoGreyColor,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Save Button
+                    // inside _showEditPartyNameSheet builder...
+                    SizedBox(
+                      width: double.infinity,
+                      height: Dimensions.smallbuttonHeight,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.secondaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () async {
+                          // 1. Make this ASYNC
+                          final newName = controller.text.trim();
+
+                          if (newName.isNotEmpty) {
+                            // 2. Kill the keyboard immediately
+                            FocusScope.of(context).unfocus();
+
+                            // 3. WAIT for the keyboard to slide down (The Magic Fix)
+                            // This gives the layout time to reset before popping the sheet
+                            await Future.delayed(
+                              const Duration(milliseconds: 200),
+                            );
+
+                            if (context.mounted) {
+                              _updatePartyNameLocally(newName);
+                              Navigator.pop(
+                                context,
+                              ); // 4. Now close the sheet safely
+                            }
+                          }
+                        },
+                        child: const Text("Save Changes"),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _updatePartyNameLocally(String newName) {
+    // 1. Update the Parent (Bloc / Database)
+    widget.onPartyChanged(liveTransaction, newName);
+
+    // 2. Update the UI locally instantly
+    setState(() {
+      liveTransaction = liveTransaction.copyWith(transactionParty: newName);
     });
   }
 }

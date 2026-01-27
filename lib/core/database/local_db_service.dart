@@ -155,6 +155,24 @@ class LocalDbService {
     });
   }
 
+  //Update Transaction Party
+  Future<void> updateTransactionParty({
+    required int id,
+    required String newName,
+  }) async {
+    await isar.writeTxn(() async {
+      final transaction = await isar.transactionEntitys.get(id);
+      if (transaction != null) {
+        transaction.transactionParty = newName;
+        // If it was "Uncategorized", maybe mark it as enriched now?
+        if (newName != 'Unknown' || newName != 'Unresolved') {
+          transaction.isAiEnriched = true;
+        }
+        await isar.transactionEntitys.put(transaction);
+      }
+    });
+  }
+
   // ✂️ UPDATE SPLITS
   Future<void> updateTransactionSplits({
     required int id,
@@ -367,6 +385,47 @@ class LocalDbService {
         if (!categories.contains(t.categoryName)) {
           return false; // Skip if category is not in the list
         }
+      }
+
+      return true; // Keep it
+    }).toList();
+
+    // 3. Sort Newest First
+    finalResults.sort((a, b) => b.date.compareTo(a.date));
+
+    return finalResults;
+  }
+
+  //Filter for Insights Page (date and bank)
+  Future<List<TransactionEntity>> insightsFilterTransactions({
+    required String userId,
+    DateTimeRange? dateRange,
+    int? bankId,
+  }) async {
+    List<TransactionEntity> results;
+
+    // 1. PRIMARY QUERY (Isar)
+    // Date is the most efficient filter, so we ask the DB for that first.
+    if (dateRange != null) {
+      results = await isar.transactionEntitys
+          .filter()
+          .userIdEqualTo(userId)
+          .dateBetween(dateRange.start, dateRange.end)
+          .findAll();
+    } else {
+      // If no date selected, get everything (or you could limit to last 30 days)
+      results = await isar.transactionEntitys
+          .filter()
+          .userIdEqualTo(userId)
+          .findAll();
+    }
+
+    // 2. SECONDARY FILTERS (Dart Memory)
+    // This effectively chains the filters together
+    final finalResults = results.where((t) {
+      // A. Check Bank
+      if (bankId != null && t.bankId != bankId) {
+        return false; // Skip if bank doesn't match
       }
 
       return true; // Keep it

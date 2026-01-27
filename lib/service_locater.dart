@@ -11,6 +11,7 @@ import 'package:naira_sms_pulse/features/auth/data/repository/auth_repo_impli.da
 import 'package:naira_sms_pulse/features/auth/domian/repository/auth_repo.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:naira_sms_pulse/features/home/presentation/bloc/home_bloc.dart';
+import 'package:naira_sms_pulse/features/insights/presentation/bloc/insight_bloc.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/cubit/navnavidation_cubit.dart';
 import 'package:naira_sms_pulse/features/onboarding/data/datasources/onboarding_data_source.dart';
 import 'package:naira_sms_pulse/features/onboarding/data/repository/onboarding_repo_imple.dart';
@@ -38,6 +39,7 @@ Future<void> initDependencies() async {
   _initNavNavigation();
   _initHome();
   _initActivity();
+  _initInsights();
 }
 
 _initSupabase() {
@@ -92,6 +94,16 @@ _initActivity() {
   // );
   sl.registerFactory<ActivityBloc>(
     () => ActivityBloc(
+      localDbService: sl(),
+      authRepository: sl(),
+      onboardingDataSource: sl(),
+    ),
+  );
+}
+
+_initInsights() {
+  sl.registerFactory<InsightBloc>(
+    () => InsightBloc(
       localDbService: sl(),
       authRepository: sl(),
       onboardingDataSource: sl(),

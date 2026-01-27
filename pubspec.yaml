@@ -53,6 +53,7 @@ dependencies:
   path_provider: ^2.1.5
   flutter_iconpicker: ^4.0.3
   calendar_date_picker2: ^2.0.1
+  fl_chart: ^0.66.0
 
 dev_dependencies:
   flutter_test:

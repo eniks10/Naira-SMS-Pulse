@@ -40,9 +40,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<ToggleTransactionVisibilityEvent>(_toggleTransactionVisibilityEvent);
     on<BankChangedEvent>(_bankChangedEvent);
     on<ChangeCategoryEvent>(_onChangeCategory);
-    on<SplitTransactionEvent>(_splitTransactionEvent);
+    //on<SplitTransactionEvent>(_splitTransactionEvent);
     on<RetryAiAnalysisEvent>(_onRetryAiAnalysis);
     on<AddNewCategoryEvent>(_onAddNewCategory);
+    on<UpdateTransactionPartyEvent>(_updateTransactionPartyEvent);
   }
 
   // ===========================================================================
@@ -355,36 +356,36 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  FutureOr<void> _splitTransactionEvent(
-    SplitTransactionEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    final newSplits = event.splitData.map((data) {
-      return SplitModel(
-        categoryName: data['category'] as String,
-        amount: (data['amount'] as num).toDouble(),
-        description: data['description'] as String? ?? '',
-      );
-    }).toList();
+  // FutureOr<void> _splitTransactionEvent(
+  //   SplitTransactionEvent event,
+  //   Emitter<HomeState> emit,
+  // ) async {
+  //   final newSplits = event.splitData.map((data) {
+  //     return SplitModel(
+  //       categoryName: data['category'] as String,
+  //       amount: (data['amount'] as num).toDouble(),
+  //       description: data['description'] as String? ?? '',
+  //     );
+  //   }).toList();
 
-    final updatedList = state.transactions.map((t) {
-      if (t.id == event.original.id) {
-        return t.copyWith(splits: newSplits);
-      }
-      return t;
-    }).toList();
+  //   final updatedList = state.transactions.map((t) {
+  //     if (t.id == event.original.id) {
+  //       return t.copyWith(splits: newSplits);
+  //     }
+  //     return t;
+  //   }).toList();
 
-    emit(state.copyWith(transactions: updatedList));
+  //   emit(state.copyWith(transactions: updatedList));
 
-    try {
-      await _localDbService.updateTransactionSplits(
-        id: event.original.id,
-        splits: newSplits,
-      );
-    } catch (e) {
-      print("Failed to save splits: $e");
-    }
-  }
+  //   try {
+  //     await _localDbService.updateTransactionSplits(
+  //       id: event.original.id,
+  //       splits: newSplits,
+  //     );
+  //   } catch (e) {
+  //     print("Failed to save splits: $e");
+  //   }
+  // }
 
   FutureOr<void> _onRetryAiAnalysis(
     RetryAiAnalysisEvent event,
@@ -457,6 +458,44 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       );
     } catch (e) {
       print("Error adding category: $e");
+    }
+  }
+
+  FutureOr<void> _updateTransactionPartyEvent(
+    UpdateTransactionPartyEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    // 1. Keep a reference to the OLD list (Safety Net)
+    final previousList = state.transactions;
+
+    // 2. Perform Optimistic Update (UI updates instantly)
+    final updatedList = state.transactions.map((t) {
+      if (t.id == event.transaction.id) {
+        // Update Name AND set isAiEnriched to true (since user manually fixed it)
+        return t.copyWith(transactionParty: event.name, isAiEnriched: true);
+      }
+      return t;
+    }).toList();
+
+    emit(state.copyWith(transactions: updatedList));
+
+    try {
+      // 3. Update Database
+      await _localDbService.updateTransactionParty(
+        id: event.transaction.id,
+        newName: event.name,
+      );
+    } catch (e) {
+      print("Failed to update TransactionParty: $e");
+
+      // 4. REVERT on Failure (Safety Net)
+      // If DB fails, put the old list back so UI doesn't lie to the user
+      emit(
+        state.copyWith(
+          transactions: previousList,
+          errorMessage: "Failed to save transaction party",
+        ),
+      );
     }
   }
 }

@@ -24,12 +24,12 @@ class ChangeCategoryEvent extends HomeEvent {
   ChangeCategoryEvent(this.transaction, this.newCategory);
 }
 
-class SplitTransactionEvent extends HomeEvent {
-  final TransactionModel original;
-  final List<Map<String, dynamic>>
-  splitData; // [{category: 'Food', amount: 5000}, ...]
-  SplitTransactionEvent(this.original, this.splitData);
-}
+// class SplitTransactionEvent extends HomeEvent {
+//   final TransactionModel original;
+//   final List<Map<String, dynamic>>
+//   splitData; // [{category: 'Food', amount: 5000}, ...]
+//   SplitTransactionEvent(this.original, this.splitData);
+// }
 
 class DateRangeChangedEvent extends HomeEvent {
   final DateTimeRange newRange;
@@ -42,4 +42,11 @@ class AddNewCategoryEvent extends HomeEvent {
   final String name;
   final String iconJson;
   AddNewCategoryEvent({required this.name, required this.iconJson});
+}
+
+class UpdateTransactionPartyEvent extends HomeEvent {
+  final TransactionModel transaction;
+  final String name;
+
+  UpdateTransactionPartyEvent({required this.transaction, required this.name});
 }

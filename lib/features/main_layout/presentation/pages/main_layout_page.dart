@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:naira_sms_pulse/core/config/theme/app_colors.dart';
 import 'package:naira_sms_pulse/features/activity/presentation/pages/activity_page.dart';
 import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
+import 'package:naira_sms_pulse/features/insights/presentation/pages/insights_page.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/cubit/navnavidation_cubit.dart';
 import 'package:naira_sms_pulse/service_locater.dart';
 
@@ -18,9 +19,9 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   final List<Widget> _pages = const [
     HomePage(),
     ActivityPage(),
-    HomePage(),
-    HomePage(),
-    // InsightsPage(),
+    InsightsPage(),
+    // HomePage(),
+
     // ActivityPage(),
     // SettingsPage(),
   ];
@@ -54,14 +55,6 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
                   label: 'Home',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.pie_chart_outline_rounded),
-                  selectedIcon: Icon(
-                    Icons.pie_chart_rounded,
-                    color: AppColors.secondaryColor,
-                  ),
-                  label: 'Insights',
-                ),
-                NavigationDestination(
                   icon: Icon(Icons.receipt_long_outlined),
                   selectedIcon: Icon(
                     Icons.receipt_long_rounded,
@@ -70,13 +63,22 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
                   label: 'Activity',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.person_outline_rounded),
+                  icon: Icon(Icons.pie_chart_outline_rounded),
                   selectedIcon: Icon(
-                    Icons.person_rounded,
+                    Icons.pie_chart_rounded,
                     color: AppColors.secondaryColor,
                   ),
-                  label: 'Profile',
+                  label: 'Insights',
                 ),
+
+                // NavigationDestination(
+                //   icon: Icon(Icons.person_outline_rounded),
+                //   selectedIcon: Icon(
+                //     Icons.person_rounded,
+                //     color: AppColors.secondaryColor,
+                //   ),
+                //   label: 'Profile',
+                // ),
               ],
             ),
           ),

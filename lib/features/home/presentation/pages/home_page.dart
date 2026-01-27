@@ -70,13 +70,13 @@ class _HomePageState extends State<HomePage> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: Dimensions.horizontal(context),
-                      ).copyWith(bottom: 10),
+                      ).copyWith(bottom: 10, top: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             // _getGreeting(),
-                            'Hello $firstName',
+                            'Hello $firstName,',
                             style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(
                                   color: AppColors.secondaryColor,
@@ -85,20 +85,20 @@ class _HomePageState extends State<HomePage> {
                                 ),
                           ),
 
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.blueContColor,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                firstName.characters.first.toUpperCase(),
-                                style: Theme.of(context).textTheme.bodyLarge!
-                                    .copyWith(color: AppColors.primaryColor),
-                              ),
-                            ),
-                          ),
+                          // Container(
+                          //   decoration: BoxDecoration(
+                          //     shape: BoxShape.circle,
+                          //     color: AppColors.blueContColor,
+                          //   ),
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.all(10.0),
+                          //     child: Text(
+                          //       firstName.characters.first.toUpperCase(),
+                          //       style: Theme.of(context).textTheme.bodyLarge!
+                          //           .copyWith(color: AppColors.primaryColor),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -247,6 +247,19 @@ class _HomePageState extends State<HomePage> {
                                       AddNewCategoryEvent(
                                         name: name,
                                         iconJson: iconData,
+                                      ),
+                                    );
+                                  },
+
+                              'onPartyChanged':
+                                  (
+                                    TransactionModel transaction,
+                                    String newName,
+                                  ) {
+                                    context.read<HomeBloc>().add(
+                                      UpdateTransactionPartyEvent(
+                                        transaction: transaction,
+                                        name: newName,
                                       ),
                                     );
                                   },
