@@ -31,3 +31,5 @@ final class ShowLoginEvent extends AuthEvent {}
 final class ShowSignUpEvent extends AuthEvent {}
 
 final class LogOutEvent extends AuthEvent {}
+
+class AuthCheckRequested extends AuthEvent {}

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:naira_sms_pulse/core/config/theme/app_theme.dart';
+import 'package:naira_sms_pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_in_page.dart';
-import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_up_page.dart';
-import 'package:naira_sms_pulse/features/onboarding/presentation/pages/bank_selction_page.dart';
+import 'package:naira_sms_pulse/features/home/presentation/bloc/home_bloc.dart';
+import 'package:naira_sms_pulse/features/insights/presentation/bloc/insight_bloc.dart';
+import 'package:naira_sms_pulse/features/main_layout/presentation/cubit/navnavidation_cubit.dart';
+import 'package:naira_sms_pulse/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/cubit/splash_cubit.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/pages/splash_screen.dart';
 import 'package:naira_sms_pulse/router/router.dart';
@@ -20,6 +22,7 @@ void main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
+
   await initDependencies();
   runApp(
     MultiBlocProvider(
@@ -27,6 +30,16 @@ void main() async {
         BlocProvider(create: (_) => sl<SplashCubit>()),
 
         BlocProvider(create: (_) => sl<AuthBloc>()),
+
+        BlocProvider(create: (_) => sl<OnboardingCubit>()),
+
+        BlocProvider(create: (_) => sl<NavnavidationCubit>()),
+
+        BlocProvider(create: (_) => sl<HomeBloc>()),
+
+        BlocProvider(create: (_) => sl<ActivityBloc>()),
+
+        BlocProvider(create: (_) => sl<InsightBloc>()),
       ],
       child: const MyApp(),
     ),
@@ -45,7 +58,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       onGenerateRoute: (settings) => generateRoute(settings),
       initialRoute: SplashScreen.routeName,
-      //home: BankSelectionPage(),
     );
   }
 }

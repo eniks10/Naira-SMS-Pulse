@@ -17,6 +17,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginEvent>(_loginEvent);
     on<SignUpEvent>(_signUpEvent);
     on<LogOutEvent>(_logOutEvent);
+    on<AuthCheckRequested>(_onAuthCheckRequested);
   }
 
   FutureOr<void> _showLoginEvent(
@@ -132,5 +133,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
       },
     );
+  }
+
+  FutureOr<void> _onAuthCheckRequested(
+    AuthCheckRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    // 1. Ask Repository: "Do we have a user on disk?"
+    final currentUser = _authRepo.currentUser;
+
+    if (currentUser != null) {
+      // 2. If yes, Restore it to Memory!
+      emit(
+        state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          user: currentUser, // <--- This fixes "mainull"
+        ),
+      );
+    } else {
+      // 3. If no, ensure state is empty
+      emit(state.copyWith(isLoading: false, user: null));
+    }
   }
 }
