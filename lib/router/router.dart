@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:naira_sms_pulse/core/models/transaction_model.dart';
 import 'package:naira_sms_pulse/features/activity/presentation/pages/activity_page.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/auth_bridge.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_up_page.dart';
-import 'package:naira_sms_pulse/features/home/presentation/bloc/home_state.dart';
 import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
 import 'package:naira_sms_pulse/features/home/presentation/pages/transaction_details_page.dart';
 import 'package:naira_sms_pulse/features/insights/presentation/pages/insights_page.dart';

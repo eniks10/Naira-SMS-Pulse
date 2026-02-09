@@ -73,10 +73,6 @@ _initAuth() {
 }
 
 _initHome() {
-  //sl.registerLazySingleton<AuthService>(() => AuthServiceImplementation(sl()));
-  // sl.registerLazySingleton<AuthRepository>(
-  //   () => AuthRepositoryImplementation(sl(), sl()),
-  // );
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(
       localDbService: sl(),
@@ -88,10 +84,6 @@ _initHome() {
 }
 
 _initActivity() {
-  //sl.registerLazySingleton<AuthService>(() => AuthServiceImplementation(sl()));
-  // sl.registerLazySingleton<AuthRepository>(
-  //   () => AuthRepositoryImplementation(sl(), sl()),
-  // );
   sl.registerFactory<ActivityBloc>(
     () => ActivityBloc(
       localDbService: sl(),

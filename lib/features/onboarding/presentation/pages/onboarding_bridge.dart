@@ -1,69 +1,8 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_bloc.dart';
-// import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_in_page.dart';
-// import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
-// import 'package:naira_sms_pulse/features/onboarding/presentation/cubit/onboarding_cubit.dart';
-// import 'package:naira_sms_pulse/features/onboarding/presentation/cubit/onboarding_state.dart';
-// import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_page.dart';
-
-// class OnboardingBridge extends StatefulWidget {
-//   static const String routeName = 'onboarding_bridge';
-
-//   const OnboardingBridge({super.key});
-
-//   @override
-//   State<OnboardingBridge> createState() => _OnboardingBridgeState();
-// }
-
-// class _OnboardingBridgeState extends State<OnboardingBridge> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     _checkUser();
-//   }
-
-//   void _checkUser() {
-//     // 1. Get the current User ID from AuthBloc
-//     final user = context.read<AuthBloc>().state.user;
-
-//     if (user != null) {
-//       // 2. Ask Cubit: "Is THIS user onboarded?"
-//       context.read<OnboardingCubit>().checkOnboardingStatusAndNavigate(
-//         userId: user.id,
-//       );
-//     } else {
-//       // Safety: If no user is found, force logout back to SignIn
-//       Navigator.pushReplacementNamed(context, SignInPage.routeName);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<OnboardingCubit, OnboardingState>(
-//       builder: (context, state) {
-//         switch (state.onBoardingStatus) {
-//           // 👇 1. Handle the checking state
-//           case OnBoardingStatus.checking:
-//             return const Scaffold(
-//               body: Center(child: CircularProgressIndicator()),
-//             );
-//           case OnBoardingStatus.onBoardingFinished:
-//             return HomePage();
-//           case OnBoardingStatus.onBoardingUnfinished:
-//             return OnboardingPage();
-//         }
-//       },
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/bloc/auth_state.dart'; // Ensure correct import
 import 'package:naira_sms_pulse/features/auth/presentation/pages/sign_in_page.dart';
-import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/pages/main_layout_page.dart';
 import 'package:naira_sms_pulse/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:naira_sms_pulse/features/onboarding/presentation/cubit/onboarding_state.dart';

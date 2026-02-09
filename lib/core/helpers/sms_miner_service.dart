@@ -24,29 +24,87 @@ class SmsMinerService {
   }) async {
     print("🔄 STARTING SYNC...");
     await _localDb.seedDefaultCategories();
-    print("✅ Categories guaranteed to exist");
 
-    final int lastSyncTime =
-        _prefs.getInt('last_sync_timestamp') ??
-        DateTime.now().subtract(Duration(days: 60)).millisecondsSinceEpoch;
+    // 1. Define the "Floor" (Jan 1st, 00:00:00)
+    final now = DateTime.now();
+    final int startOfYear = DateTime(now.year, 1, 1).millisecondsSinceEpoch;
 
+    // 2. Get Last Sync (Optimization)
+    // If we synced yesterday, we only need to fetch back to yesterday, not Jan 1st.
+    final int? storedTimestamp = _prefs.getInt('last_sync_timestamp');
+    final int fetchLimitTimestamp =
+        (storedTimestamp != null && storedTimestamp > startOfYear)
+        ? storedTimestamp
+        : startOfYear;
+
+    List<SmsMessage> allMessages = [];
+    bool hasMore = true;
+    int start = 0; // Pagination Offset
+    const int batchSize = 500; // Safe batch size
+
+    print(
+      "📅 Fetching messages since: ${DateTime.fromMillisecondsSinceEpoch(fetchLimitTimestamp)}",
+    );
+
+    // 3. THE SMART LOOP 🔄
     try {
-      final messages = await _query.querySms(
-        kinds: [SmsQueryKind.inbox],
-        count: 500,
-      );
+      while (hasMore) {
+        // Fetch a batch (e.g., 0-500, then 500-1000...)
+        final batch = await _query.querySms(
+          kinds: [SmsQueryKind.inbox],
+          start: start,
+          count: batchSize,
+        );
 
-      if (messages.isEmpty) return;
+        if (batch.isEmpty) {
+          hasMore = false;
+          break;
+        }
 
-      final job = MiningJob(messages: messages, rules: activeRules);
+        // Check the date of the *last* message in this batch
+        // (Messages are usually returned newest-first)
+        final lastMsgDate = batch.last.date?.millisecondsSinceEpoch ?? 0;
+
+        // Filter this batch: Keep only messages newer than our limit
+        final validMessages = batch.where((msg) {
+          return (msg.date?.millisecondsSinceEpoch ?? 0) >= fetchLimitTimestamp;
+        }).toList();
+
+        allMessages.addAll(validMessages);
+
+        // DECISION TIME:
+        if (lastMsgDate < fetchLimitTimestamp) {
+          // The batch went back too far (e.g., into last year).
+          // We found the "edge" of our data. Stop fetching.
+          hasMore = false;
+          print("🛑 Reached limit. Stopping fetch.");
+        } else {
+          // The whole batch was from this year. There might be more.
+          // Move the offset to fetch the next page.
+          start += batchSize;
+          print(
+            "➡️ Fetched $batchSize messages... digging deeper (Current total: ${allMessages.length})",
+          );
+        }
+      }
+
+      print("✅ Total Relevant Messages: ${allMessages.length}");
+
+      if (allMessages.isEmpty) return;
+
+      // ... (Continue with your MiningJob logic using `allMessages`) ...
+
+      final job = MiningJob(messages: allMessages, rules: activeRules);
+
 
       List<TransactionModel> rawTransactions = await compute(
         _processMessagesInIsolate,
-        MiningJobWithType(job: job, lastSyncTime: lastSyncTime),
+        MiningJobWithType(job: job, lastSyncTime: fetchLimitTimestamp),
       );
 
-      final existingHashes = await _localDb.getAllSignatures(userId);
 
+      // 1. Filter out duplicates (Signatures)
+      final existingHashes = await _localDb.getAllSignatures(userId);
       final List<TransactionModel> newTransactions = rawTransactions.where((
         txn,
       ) {
@@ -59,9 +117,47 @@ class SmsMinerService {
         return;
       }
 
-      // 🚀 USE THE HELPER FUNCTION HERE
-      print("🤖 Sending ${newTransactions.length} NEW items to AI...");
-      await _enrichWithAiAndSave(newTransactions, userId);
+      // =================================================================
+      // 🚦 THE NEW "BUS STOP" LOGIC
+      // =================================================================
+
+      // 2. SAVE IMMEDIATELY (As Pending / Uncategorized)
+      // We mark them as `isAiEnriched: false` by default in your model,
+      // or explicitly set it here just to be safe.
+      final pendingTransactions = newTransactions
+          .map(
+            (t) => t.copyWith(
+              isAiEnriched: false,
+              categoryName: t.transactionType == TransactionType.credit
+                  ? 'Taxable Income'
+                  : 'Uncategorized',
+            ),
+          )
+          .toList();
+
+      await _localDb.saveMinigResults(pendingTransactions, userId);
+      print("📥 Buffered ${pendingTransactions.length} new items to DB.");
+
+      // 3. CHECK THE QUEUE SIZE
+      // We count ALL pending items (including ones from yesterday if they exist)
+      final allPendingEntities = await _localDb.getPendingTransactions(userId);
+      final totalPendingCount = allPendingEntities.length;
+
+      print("🚌 Current Queue Size: $totalPendingCount / 30");
+
+      // 4. DECIDE: SEND OR WAIT?
+      if (totalPendingCount >= 5) {
+        print("🚀 Queue full! Launching AI Batch Processor...");
+
+        // Convert entities back to models
+        final batchToProcess = allPendingEntities
+            .map((e) => e.toModel())
+            .toList();
+
+        await _enrichWithAiAndSave(batchToProcess, userId);
+      } else {
+        print("zzz Waiting for more transactions to fill the bus...");
+      }
 
       await _updateSyncTimestamp();
     } catch (e) {
@@ -87,12 +183,23 @@ class SmsMinerService {
 
     print("♻️ Found ${pendingEntities.length} pending items. Retrying AI...");
 
-    // 2. Convert Entity -> Model
-    final pendingModels = pendingEntities.map((e) => e.toModel()).toList();
+    final totalPendingCount = pendingEntities.length;
 
-    // 3. Reuse the Helper Function
-    // This will run them through Gemini again and update the DB
-    await _enrichWithAiAndSave(pendingModels, userId);
+    print("🚌 Current Queue Size: $totalPendingCount / 30");
+
+    // 4. DECIDE: SEND OR WAIT?
+    if (totalPendingCount >= 5) {
+      print("🚀 Queue full! Launching AI Batch Processor...");
+
+      // Convert entities back to models
+      final batchToProcess = pendingEntities.map((e) => e.toModel()).toList();
+
+      await _enrichWithAiAndSave(batchToProcess, userId);
+    } else {
+      print("zzz Waiting for more transactions to fill the bus...");
+    }
+
+
 
     print("✅ Retry complete.");
   }
@@ -167,75 +274,6 @@ class SmsMinerService {
       );
     }
   }
-  // // ===========================================================================
-  // // 🧠 HELPER: AI BATCH PROCESSOR (The Brain)
-  // // ===========================================================================
-  // Future<void> _enrichWithAiAndSave(
-  //   List<TransactionModel> transactions,
-  //   String userId,
-  // ) async {
-  //   // 1. FETCH DYNAMIC CATEGORIES
-  //   // This gets "Food", "Transport", AND "Books" (if user added it)
-  //   final List<String> currentCategories = await _localDb.getCategoryNames();
-
-  //   final List<TransactionModel> finalResults = [];
-  //   int batchSize = 30; // 30 is safe for free tier
-
-  //   for (var i = 0; i < transactions.length; i += batchSize) {
-  //     final end = (i + batchSize < transactions.length)
-  //         ? i + batchSize
-  //         : transactions.length;
-
-  //     final batch = transactions.sublist(i, end);
-
-  //     // Extract descriptions for AI
-  //     final descriptions = batch.map((t) => t.description).toList();
-
-  //     // 🚀 Call AI
-  //     final aiResults = await GeminiCategorizer.analyzeBatch(
-  //       descriptions,
-  //       currentCategories,
-  //     );
-  //     bool batchFailed = (aiResults == null);
-
-  //     for (var j = 0; j < batch.length; j++) {
-  //       var txn = batch[j];
-
-  //       // If Credit, we force logic (technically "Enriched" because we decided on it)
-  //       if (txn.transactionType == TransactionType.credit) {
-  //         finalResults.add(
-  //           txn.copyWith(isAiEnriched: true, categoryName: 'Uncategorized'),
-  //         );
-  //         continue;
-  //       }
-
-  //       // If AI worked
-  //       if (!batchFailed && j < aiResults!.length) {
-  //         final result = aiResults[j];
-  //         finalResults.add(
-  //           txn.copyWith(
-  //             categoryName: result.category,
-  //             transactionParty: result.party,
-  //             isAiEnriched: true, // ✅ Success!
-  //           ),
-  //         );
-  //       } else {
-  //         // AI Failed or Network Error
-  //         // We keep isAiEnriched = false so 'retryFailedTransactions' picks it up next time
-  //         finalResults.add(txn.copyWith(isAiEnriched: false));
-  //       }
-  //     }
-
-  //     // Small delay to be nice to the API
-  //     await Future.delayed(const Duration(milliseconds: 200));
-  //   }
-
-  //   // Save to DB (Updates existing records because of matching Hash/Signature)
-  //   if (finalResults.isNotEmpty) {
-  //     await _localDb.saveMinigResults(finalResults, userId);
-  //     print("💾 Updated/Saved ${finalResults.length} transactions.");
-  //   }
-  // }
 
   Future<void> _updateSyncTimestamp() async {
     await _prefs.setInt(
@@ -306,87 +344,8 @@ class SmsMinerService {
     return transactions;
   }
 
-  // Future<void> _processBatchStream({
-  //   required List<TransactionModel> transactions,
-  //   required List<String> categories,
-  //   required String userId,
-  //   required bool isCredit,
-  // }) async {
-  //   final List<TransactionModel> finalResults = [];
-  //   int batchSize = 10;
 
-  //   for (var i = 0; i < transactions.length; i += batchSize) {
-  //     final end = (i + batchSize < transactions.length)
-  //         ? i + batchSize
-  //         : transactions.length;
-  //     final batch = transactions.sublist(i, end);
-  //     final descriptions = batch.map((t) => t.description).toList();
 
-  //     List<GeminiData>? aiResults;
-  //     int retryCount = 0;
-  //     bool success = false;
-
-  //     // 🔄 ROBUST RETRY LOOP
-  //     while (retryCount < 3 && !success) {
-  //       aiResults = await GeminiCategorizer.analyzeBatch(
-  //         descriptions,
-  //         categories,
-  //       );
-
-  //       if (aiResults != null) {
-  //         success = true;
-  //       } else {
-  //         // 🛑 CALCULATE WAIT TIME (Exponential Backoff)
-  //         // Retry 1: Wait 60s (Safe for the 51s error)
-  //         // Retry 2: Wait 120s
-  //         // Retry 3: Wait 180s
-  //         final waitTime = (retryCount + 1) * 60;
-
-  //         print("⏳ Quota hit. Waiting ${waitTime}s to clear penalty box...");
-  //         await Future.delayed(Duration(seconds: waitTime));
-
-  //         retryCount++;
-  //       }
-  //     }
-
-  //     // Process results
-  //     for (var j = 0; j < batch.length; j++) {
-  //       var txn = batch[j];
-
-  //       if (success && j < aiResults!.length) {
-  //         final result = aiResults[j];
-  //         finalResults.add(
-  //           txn.copyWith(
-  //             categoryName: result.category,
-  //             transactionParty: result.party,
-  //             isAiEnriched: true,
-  //           ),
-  //         );
-  //       } else {
-  //         // Final Failure
-  //         finalResults.add(
-  //           txn.copyWith(
-  //             isAiEnriched: false,
-  //             categoryName: isCredit ? 'Taxable Income' : 'Uncategorized',
-  //           ),
-  //         );
-  //       }
-  //     }
-
-  //     // 🐢 STANDARD COOLDOWN
-  //     // Even on success, wait 10 seconds to be very safe with Free Tier
-  //     print("✅ Batch done. Cooling down for 10s...");
-  //     await Future.delayed(const Duration(seconds: 10));
-  //   }
-
-  //   // Save to DB
-  //   if (finalResults.isNotEmpty) {
-  //     await _localDb.saveMinigResults(finalResults, userId);
-  //     print(
-  //       "💾 Saved ${finalResults.length} ${isCredit ? 'Income' : 'Expense'} items.",
-  //     );
-  //   }
-  // }
   Future<void> _processBatchStream({
     required List<TransactionModel> transactions,
     required List<String> categories,
@@ -394,9 +353,23 @@ class SmsMinerService {
     required bool isCredit,
   }) async {
     final List<TransactionModel> finalResults = [];
-    int batchSize = 30;
 
+    // 1. CONFIGURATION FOR STRICT LIMITS
+    int batchSize = 30; // Efficient token usage
+    int requestsMade = 0; // Counter
+    const int maxDailyRequests = 20; // Your RPD limit
+
+    // 2. PROCESS IN BATCHES
     for (var i = 0; i < transactions.length; i += batchSize) {
+      // 🛑 SAFETY CHECK: Daily Limit
+      if (requestsMade >= maxDailyRequests) {
+        print("⚠️ Daily AI Quota (20 requests) reached. Stopping early.");
+        print(
+          "💡 The remaining transactions will be processed on the next sync.",
+        );
+        break;
+      }
+
       final end = (i + batchSize < transactions.length)
           ? i + batchSize
           : transactions.length;
@@ -404,50 +377,69 @@ class SmsMinerService {
 
       final descriptions = batch.map((t) => t.description).toList();
 
-      // 🚀 CRITICAL FIX: Pass the isExpense flag!
-      final aiResults = await GeminiCategorizer.analyzeBatch(
-        descriptions,
-        categories,
-        //   isExpense: !isCredit, // 👈 Debit = Expense, Credit = Income
-        isIncome: isCredit,
-      );
+      try {
+        // 🚀 CALL AI
+        final aiResults = await GeminiCategorizer.analyzeBatch(
+          descriptions,
+          categories,
+          isIncome: isCredit,
+        );
 
-      bool batchFailed = (aiResults == null);
+        // Increment Counter immediately after a call attempt
+        requestsMade++;
 
-      for (var j = 0; j < batch.length; j++) {
-        var txn = batch[j];
+        bool batchFailed = (aiResults == null);
 
-        // If AI worked
-        if (!batchFailed && j < aiResults!.length) {
-          final result = aiResults[j];
-          finalResults.add(
-            txn.copyWith(
-              categoryName: result.category,
-              transactionParty: result.party,
-              isAiEnriched: true,
-            ),
-          );
-        } else {
-          // Fallback logic on failure
-          finalResults.add(
-            txn.copyWith(
-              isAiEnriched: false,
-              categoryName: isCredit ? 'Taxable Income' : 'Uncategorized',
-            ),
-          );
+        // Process Results
+        for (var j = 0; j < batch.length; j++) {
+          var txn = batch[j];
+
+          if (!batchFailed && j < aiResults.length) {
+            final result = aiResults[j];
+            finalResults.add(
+              txn.copyWith(
+                categoryName: result.category,
+                transactionParty: result.party,
+                isAiEnriched: true,
+              ),
+            );
+          } else {
+            // Fallback
+            finalResults.add(
+              txn.copyWith(
+                isAiEnriched: false,
+                categoryName: isCredit ? 'Taxable Income' : 'Uncategorized',
+              ),
+            );
+          }
         }
+      } catch (e) {
+        print("AI Error: $e");
+        // Even on error, we might have consumed quota, so be careful.
+        // For safety, we treat errors as "processed without AI" or retry later.
       }
 
-      // Small delay to prevent 429 Errors (Too Many Requests)
-      await Future.delayed(const Duration(seconds: 60));
+      // ⏳ SAFETY DELAY: RPM LIMIT
+      // Limit is 5 RPM = 1 request every 12 seconds.
+      // We wait 15 seconds to be 100% safe.
+      if (i + batchSize < transactions.length) {
+        print("⏳ Waiting 15s to respect rate limit...");
+        await Future.delayed(const Duration(seconds: 15));
+      }
     }
 
-    // Save to DB
+    // 3. SAVE PARTIAL RESULTS
+    // Even if we stopped early because of the limit, save what we got!
     if (finalResults.isNotEmpty) {
       await _localDb.saveMinigResults(finalResults, userId);
       print(
         "💾 Saved ${finalResults.length} ${isCredit ? 'Income' : 'Expense'} items.",
       );
+
+      if (requestsMade >= maxDailyRequests) {
+        // Optional: Trigger a UI notification here telling the user
+        // "Sync paused due to daily limit. Resuming tomorrow."
+      }
     }
   }
 }

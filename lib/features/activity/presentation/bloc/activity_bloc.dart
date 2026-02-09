@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:naira_sms_pulse/core/database/local_db_service.dart';
-import 'package:naira_sms_pulse/core/database/transaction_entity.dart';
 import 'package:naira_sms_pulse/core/models/transaction_model.dart';
 import 'package:naira_sms_pulse/features/activity/presentation/bloc/activity_state.dart';
 import 'package:naira_sms_pulse/features/auth/domian/repository/auth_repo.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:naira_sms_pulse/core/config/asset/app_icons.dart';
 import 'package:naira_sms_pulse/core/config/theme/app_colors.dart';
 import 'package:naira_sms_pulse/core/helpers/dimensions.dart';
 import 'package:naira_sms_pulse/features/onboarding/data/model/bank_model.dart';
@@ -154,37 +153,6 @@ class _SelectBankPageState extends State<SelectBankPage> {
                   ],
                 ),
 
-                //Button
-                // child: SizedBox(
-                //   height: Dimensions.smallbuttonHeight,
-                //   width: double.infinity,
-                //   child: FilledButton(
-                // onPressed: _selectedBanks.isEmpty
-                //     ? null
-                //     : () {
-                //         print('Hiii');
-                //       },
-                //     style: FilledButton.styleFrom(
-                //       backgroundColor: AppColors.greyAccentColor,
-                //       disabledBackgroundColor: AppColors.middleGreyColor,
-                //       // foregroundColor: AppColors.primaryColor,
-                //       // disabledForegroundColor: AppColors.greyAccentColor,
-                //       shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadiusGeometry.circular(10),
-                //       ),
-                //     ),
-                //     child: Text(
-                //       'Continue',
-                // style: _selectedBanks.isEmpty
-                //     ? Theme.of(context).textTheme.bodyLarge?.copyWith(
-                //         color: AppColors.greyAccentColor,
-                //       )
-                //     : Theme.of(context).textTheme.bodyLarge?.copyWith(
-                //         color: AppColors.primaryColor,
-                //       ),
-                //     ),
-                //   ),
-                // ),
                 child: OnboardingButton(
                   onPressed: (state.selectedBanks.isEmpty || state.isLoading)
                       ? null

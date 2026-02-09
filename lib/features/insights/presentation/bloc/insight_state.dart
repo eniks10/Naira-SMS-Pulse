@@ -1,28 +1,4 @@
-// import 'package:flutter/material.dart';
-// import 'package:naira_sms_pulse/core/models/transaction_model.dart';
 
-// class InsightState {
-//   final DateTimeRange timeRange;
-//   final List<TransactionModel> transactions;
-
-//   InsightState({DateTimeRange? timeRange, this.transactions = const []})
-//     : timeRange =
-//           timeRange ??
-//           DateTimeRange(
-//             start: DateTime(DateTime.now().year, DateTime.now().month, 1),
-//             end: DateTime.now(),
-//           );
-
-//   InsightState copyWith({
-//     required DateTimeRange? timeRange,
-//     required List<TransactionModel>? transactions,
-//   }) {
-//     return InsightState(
-//       timeRange: timeRange ?? this.timeRange,
-//       transactions: transactions ?? this.transactions,
-//     );
-//   }
-// }
 import 'package:fl_chart/fl_chart.dart'; // Import this!
 import 'package:flutter/material.dart';
 import 'package:naira_sms_pulse/core/models/transaction_model.dart';
@@ -43,6 +19,7 @@ class InsightState {
   final List<String> categoryNames;
   final int selectedBankIndex;
   final List<BankModel> myBanks;
+  final List<TransactionModel> cachedRawList;
 
   InsightState({
     DateTimeRange? timeRange,
@@ -56,6 +33,7 @@ class InsightState {
     this.selectedBankIndex = 0,
     this.myBanks = const [],
     this.selectedType = TransactionType.debit,
+    this.cachedRawList = const [],
   }) : timeRange =
            timeRange ??
            DateTimeRange(
@@ -80,6 +58,7 @@ class InsightState {
     int? selectedBankIndex,
     List<BankModel>? myBanks,
     TransactionType? selectedType,
+    List<TransactionModel>? cachedRawList,
   }) {
     return InsightState(
       timeRange: timeRange ?? this.timeRange,
@@ -93,6 +72,7 @@ class InsightState {
       selectedBankIndex: selectedBankIndex ?? this.selectedBankIndex,
       myBanks: myBanks ?? this.myBanks,
       selectedType: selectedType ?? this.selectedType,
+      cachedRawList: cachedRawList ?? this.cachedRawList,
     );
   }
 }

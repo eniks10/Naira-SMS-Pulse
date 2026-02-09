@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:naira_sms_pulse/core/helpers/sms_permission.dart';
 import 'package:naira_sms_pulse/features/auth/presentation/widgets/loading_overlay.dart';
-import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/pages/main_layout_page.dart';
 import 'package:naira_sms_pulse/features/onboarding/data/model/bank_model.dart';
 import 'package:naira_sms_pulse/features/onboarding/presentation/cubit/onboarding_cubit.dart';

@@ -269,14 +269,18 @@ class _SignUpPageState extends State<SignUpPage>
                                         height: 24,
                                       ),
                                       SizedBox(width: 10),
-                                      Text(
-                                        'Continue with Google',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              color: AppColors.primaryColor,
-                                            ),
+                                      Flexible(
+                                        child: Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          'Continue with Google',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall
+                                              ?.copyWith(
+                                                color: AppColors.primaryColor,
+                                              ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -298,14 +302,18 @@ class _SignUpPageState extends State<SignUpPage>
                                         height: 24,
                                       ),
                                       SizedBox(width: 10),
-                                      Text(
-                                        'Continue with Apple',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              color: AppColors.secondaryColor,
-                                            ),
+                                      Flexible(
+                                        child: Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          'Continue with Apple',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall
+                                              ?.copyWith(
+                                                color: AppColors.secondaryColor,
+                                              ),
+                                        ),
                                       ),
                                     ],
                                   ),

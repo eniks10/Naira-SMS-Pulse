@@ -8,7 +8,6 @@ import 'package:naira_sms_pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:naira_sms_pulse/features/insights/presentation/bloc/insight_bloc.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/cubit/navnavidation_cubit.dart';
 import 'package:naira_sms_pulse/features/onboarding/presentation/cubit/onboarding_cubit.dart';
-import 'package:naira_sms_pulse/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/cubit/splash_cubit.dart';
 import 'package:naira_sms_pulse/features/splash/presentation/pages/splash_screen.dart';
 import 'package:naira_sms_pulse/router/router.dart';

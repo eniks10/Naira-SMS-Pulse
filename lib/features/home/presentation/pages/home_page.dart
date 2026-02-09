@@ -54,16 +54,7 @@ class _HomePageState extends State<HomePage> {
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  // 1. FILTER SECTION (Just the Bank Pod now) 🏦
-                  // SliverToBoxAdapter(
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.only(top: 20, bottom: 10),
-                  //     child: Center(
-                  //       // No Column needed anymore, just the pod
-                  //       child: const BankSelectorWidget(),
-                  //     ),
-                  //   ),
-                  // ),
+          
 
                   // 2. GREETING
                   SliverToBoxAdapter(
@@ -85,20 +76,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                           ),
 
-                          // Container(
-                          //   decoration: BoxDecoration(
-                          //     shape: BoxShape.circle,
-                          //     color: AppColors.blueContColor,
-                          //   ),
-                          //   child: Padding(
-                          //     padding: const EdgeInsets.all(10.0),
-                          //     child: Text(
-                          //       firstName.characters.first.toUpperCase(),
-                          //       style: Theme.of(context).textTheme.bodyLarge!
-                          //           .copyWith(color: AppColors.primaryColor),
-                          //     ),
-                          //   ),
-                          // ),
+                  
                         ],
                       ),
                     ),
@@ -117,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                         // Since Bloc now returns "Weekly" expense, we label it correctly.
                         title: state.selectedBankIndex == 0
                             ? 'All'
-                            : '${state.availableBanks[state.selectedBankIndex - 1].bankName} ',
+                            : '${state.selectedbanks[state.selectedBankIndex - 1].name} ',
                         state: state,
                         onTap: () {
                           showFloatingBottomDialog(context, state);

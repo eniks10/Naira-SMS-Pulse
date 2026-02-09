@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:naira_sms_pulse/core/config/theme/app_colors.dart';
 import 'package:naira_sms_pulse/core/models/transaction_model.dart';
 import 'package:naira_sms_pulse/features/home/presentation/pages/transaction_details_page.dart';
 import 'package:naira_sms_pulse/features/home/presentation/widgets/transaction_tile.dart';
@@ -130,80 +128,6 @@ class CategoryTransactionsPage extends StatelessWidget {
         categoryIcon:
             state.categoryIcons[txn.categoryName] ?? Icons.category_rounded,
       ),
-      // child: Container(
-      //   padding: const EdgeInsets.all(16),
-      //   decoration: BoxDecoration(
-      //     // color: AppColors.thinTwoGreyColor,
-      //     borderRadius: BorderRadius.circular(16),
-      //     border: Border.all(color: AppColors.thinTwoGreyColor),
-      //   ),
-      //   child: Row(
-      //     children: [
-      //       // Date Box
-      //       Container(
-      //         padding: const EdgeInsets.all(10),
-      //         decoration: BoxDecoration(
-      //           color: Colors.white,
-      //           borderRadius: BorderRadius.circular(12),
-      //         ),
-      //         child: Column(
-      //           children: [
-      //             Text(
-      //               DateFormat('MMM').format(txn.date), // "Jan"
-      //               style: TextStyle(
-      //                 fontSize: 10,
-      //                 fontWeight: FontWeight.bold,
-      //                 color: AppColors.greyTextColor,
-      //               ),
-      //             ),
-      //             Text(
-      //               DateFormat('d').format(txn.date), // "12"
-      //               style: const TextStyle(
-      //                 fontSize: 16,
-      //                 fontWeight: FontWeight.bold,
-      //               ),
-      //             ),
-      //           ],
-      //         ),
-      //       ),
-      //       const SizedBox(width: 16),
-
-      //       // Details
-      //       Expanded(
-      //         child: Column(
-      //           crossAxisAlignment: CrossAxisAlignment.start,
-      //           children: [
-      //             Text(
-      //               txn.transactionParty,
-      //               maxLines: 1,
-      //               overflow: TextOverflow.ellipsis,
-      //               style: const TextStyle(
-      //                 fontWeight: FontWeight.bold,
-      //                 fontSize: 16,
-      //               ),
-      //             ),
-      //             const SizedBox(height: 4),
-      //             Text(
-      //               DateFormat('h:mm a').format(txn.date), // "2:30 PM"
-      //               style: TextStyle(
-      //                 fontSize: 12,
-      //                 color: AppColors.greyTextColor,
-      //               ),
-      //             ),
-      //           ],
-      //         ),
-      //       ),
-
-      //       // Amount
-      //       Text(
-      //         '-₦${NumberFormat.currency(symbol: '', decimalDigits: 0).format(txn.amount)}',
-      //         style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-      //           color: AppColors.filterTextColor,
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }

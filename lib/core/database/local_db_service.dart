@@ -197,42 +197,7 @@ class LocalDbService {
     });
   }
 
-  // Future<void> seedDefaultCategories() async {
-  //   final count = await isar.categoryEntitys.count();
-  //   if (count > 0) return; // Already seeded
-
-  //   // Map your Gemini Defaults to Icons here
-  //   final Map<String, IconData> defaults = {
-  // 'Food & Groceries': Icons.fastfood_rounded,
-  // 'Transport': Icons.directions_car_rounded,
-  // 'Shopping': Icons.shopping_bag_rounded,
-  // 'Bills & Utilities': Icons.receipt_long_rounded,
-  // 'Data and Airtime': Icons.phone,
-  // 'Subscriptions': Icons.subscriptions_rounded,
-  // 'Pos Withdrawals & Payments': Icons.point_of_sale_rounded,
-  // 'Health': Icons.local_hospital_rounded,
-  // 'Tithe & Offering': Icons.church_rounded,
-  // 'Giving': Icons.card_giftcard_rounded,
-  // 'Uncategorized': Icons.help_outline_rounded,
-
-  //     // --- NEW INCOME CATEGORIES (Tax Reform Logic) ---
-  //     'Taxable Income': Icons.balance_rounded, // Icon implies official/gov
-  //     'Non-Taxable Income': Icons.credit_card_rounded,
-  //   };
-
-  //   final List<CategoryEntity> entities = [];
-  //   defaults.forEach((name, icon) {
-  //     entities.add(
-  //       CategoryEntity()
-  //         ..name = name
-  //         ..iconData = IconSerializer.serialize(icon),
-  //     );
-  //   });
-
-  //   await isar.writeTxn(() async {
-  //     await isar.categoryEntitys.putAll(entities);
-  //   });
-  // }
+  
   Future<void> seedDefaultCategories() async {
     // 1. REMOVE THIS LINE 👇
     // final count = await isar.categoryEntitys.count();

@@ -12,7 +12,6 @@ import 'package:naira_sms_pulse/features/auth/domian/repository/auth_repo.dart';
 import 'package:naira_sms_pulse/features/home/presentation/bloc/home_state.dart';
 import 'package:naira_sms_pulse/features/onboarding/data/datasources/onboarding_data_source.dart';
 import 'package:naira_sms_pulse/features/onboarding/data/model/bank_model.dart';
-import 'package:naira_sms_pulse/features/onboarding/domain/repository/onboarding_repository.dart';
 
 part 'home_event.dart';
 
@@ -356,36 +355,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  // FutureOr<void> _splitTransactionEvent(
-  //   SplitTransactionEvent event,
-  //   Emitter<HomeState> emit,
-  // ) async {
-  //   final newSplits = event.splitData.map((data) {
-  //     return SplitModel(
-  //       categoryName: data['category'] as String,
-  //       amount: (data['amount'] as num).toDouble(),
-  //       description: data['description'] as String? ?? '',
-  //     );
-  //   }).toList();
-
-  //   final updatedList = state.transactions.map((t) {
-  //     if (t.id == event.original.id) {
-  //       return t.copyWith(splits: newSplits);
-  //     }
-  //     return t;
-  //   }).toList();
-
-  //   emit(state.copyWith(transactions: updatedList));
-
-  //   try {
-  //     await _localDbService.updateTransactionSplits(
-  //       id: event.original.id,
-  //       splits: newSplits,
-  //     );
-  //   } catch (e) {
-  //     print("Failed to save splits: $e");
-  //   }
-  // }
+  
 
   FutureOr<void> _onRetryAiAnalysis(
     RetryAiAnalysisEvent event,
@@ -421,20 +391,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  // FutureOr<void> _onAddNewCategory(
-  //   AddNewCategoryEvent event,
-  //   Emitter<HomeState> emit,
-  // ) async {
-  //   try {
-  //     await _localDbService.addCategory(event.name, event.iconJson);
-
-  //     // Refresh the icon map so the UI updates immediately
-  //     final newIconMap = await _localDbService.getCategoryIconMap();
-  //     emit(state.copyWith(categoryIcons: newIconMap));
-  //   } catch (e) {
-  //     print("Error adding category: $e");
-  //   }
-  // }
+  
   FutureOr<void> _onAddNewCategory(
     AddNewCategoryEvent event,
     Emitter<HomeState> emit,

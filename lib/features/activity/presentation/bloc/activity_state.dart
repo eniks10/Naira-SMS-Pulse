@@ -2,57 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:naira_sms_pulse/core/models/transaction_model.dart';
 import 'package:naira_sms_pulse/features/onboarding/data/model/bank_model.dart';
 
-// class ActivityState {
-//   final bool isLoading;
-//   final List<TransactionModel> transactions;
-//   final DateTimeRange? dateTimeRange;
-//   final String? errorMessage;
-//   final Map<String, IconData> categoryIcons;
-//   final BankModel? selectedbank;
-//   final List<BankModel> myBanks;
-//   final List<String> myCategories;
-//   final List<String>? categoryFilters;
-//   final int? selectedBankIndex;
-
-//   ActivityState({
-//     this.isLoading = false,
-//     this.transactions = const [],
-//     this.errorMessage,
-//     this.dateTimeRange,
-//     this.categoryIcons = const {},
-//     this.selectedbank,
-//     this.myBanks = const [],
-//     this.myCategories = const [],
-//     this.categoryFilters,
-//     this.selectedBankIndex,
-//   });
-
-//   ActivityState copyWith({
-//     bool? isLoading,
-//     List<TransactionModel>? transactions,
-//     String? errorMessage,
-//     DateTimeRange? dateTimeRange,
-//     Map<String, IconData>? categoryIcons,
-//     BankModel? selectedbank,
-//     List<BankModel>? myBanks,
-//     List<String>? myCategories,
-//     List<String>? categoryFilters,
-//     int? selectedBankIndex,
-//   }) {
-//     return ActivityState(
-//       isLoading: isLoading ?? this.isLoading,
-//       transactions: transactions ?? this.transactions,
-//       dateTimeRange: dateTimeRange ?? this.dateTimeRange,
-//       errorMessage: errorMessage,
-//       categoryIcons: categoryIcons ?? this.categoryIcons,
-//       selectedbank: selectedbank ?? this.selectedbank,
-//       myBanks: myBanks ?? this.myBanks,
-//       myCategories: myCategories ?? this.myCategories,
-//       categoryFilters: categoryFilters ?? this.categoryFilters,
-//       selectedBankIndex: selectedBankIndex ?? this.selectedBankIndex,
-//     );
-//   }
-// }
 
 class ActivityState {
   final bool isLoading;

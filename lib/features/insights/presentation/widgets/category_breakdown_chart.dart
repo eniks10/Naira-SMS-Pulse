@@ -60,33 +60,7 @@ class CategoryBreakdownChart extends StatelessWidget {
                     ),
                   ),
 
-                  // // CENTER TEXT (Aligned to the baseline of the arch)
-                  // Padding(
-                  //   padding: EdgeInsets.only(bottom: outerRadius / 4),
-                  //   child: Column(
-                  //     mainAxisSize: MainAxisSize.min,
-                  //     children: [
-                  //       Text(
-                  //         "Top",
-                  //         style: Theme.of(context).textTheme.bodySmall!
-                  //             .copyWith(
-                  //               color: AppColors.filterTextColor,
-                  //               fontWeight: FontWeight.bold,
-                  //             ),
-                  //       ),
-                  //       Text(
-                  //         categories.length > 4
-                  //             ? '4'
-                  //             : categories.length.toString(),
-                  //         style: const TextStyle(
-                  //           fontWeight: FontWeight.w900,
-                  //           fontSize: 32,
-                  //           height: 1.0, // Tighter line height
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
+   
                 ],
               ),
             );
@@ -101,74 +75,6 @@ class CategoryBreakdownChart extends StatelessWidget {
           ).textTheme.bodyLarge!.copyWith(color: AppColors.secondaryColor),
         ),
         const SizedBox(height: 10), // Clean spacing between arch and list
-        // 2. THE LIST VIEW (Unchanged)
-        // ...categories.map((cat) {
-        //   return GestureDetector(
-        //     onTap: () => onCategoryTap(cat.name),
-        //     child: Padding(
-        //       padding: const EdgeInsets.only(bottom: 16.0),
-        //       child: Row(
-        //         children: [
-        //           Container(
-        //             padding: const EdgeInsets.all(10),
-        //             decoration: BoxDecoration(
-        //               color: cat.color.withOpacity(0.1),
-        //               shape: BoxShape.circle,
-        //             ),
-        //             child: Icon(cat.icon, color: cat.color, size: 18),
-        //           ),
-        //           const SizedBox(width: 12),
-        //           Expanded(
-        //             child: Column(
-        //               crossAxisAlignment: CrossAxisAlignment.start,
-        //               children: [
-        //                 Row(
-        //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                   children: [
-        //                     Expanded(
-        //                       child: Text(
-        //                         cat.name,
-        //                         overflow: TextOverflow.ellipsis,
-        //                         style: const TextStyle(
-        //                           fontWeight: FontWeight.bold,
-        //                         ),
-        //                       ),
-        //                     ),
-        //                     Text(
-        //                       '₦${NumberFormat.currency(symbol: '', decimalDigits: 0).format(cat.totalAmount)}',
-        //                       style: const TextStyle(
-        //                         fontWeight: FontWeight.bold,
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //                 const SizedBox(height: 6),
-        //                 ClipRRect(
-        //                   borderRadius: BorderRadius.circular(4),
-        //                   child: LinearProgressIndicator(
-        //                     value: cat.percentage,
-        //                     backgroundColor: AppColors.thinTwoGreyColor,
-        //                     color: cat.color,
-        //                     minHeight: 6,
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           ),
-        //           const SizedBox(width: 12),
-        //           Text(
-        //             '${(cat.percentage * 100).toStringAsFixed(0)}%',
-        //             style: TextStyle(
-        //               color: Colors.grey.shade600,
-        //               fontWeight: FontWeight.bold,
-        //               fontSize: 12,
-        //             ),
-        //           ),
-        //         ],
-        //       ),
-        //     ),
-        //   );
-        // }),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
@@ -230,16 +136,7 @@ class CategoryBreakdownChart extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(height: 3),
-                                // ClipRRect(
-                                //   borderRadius: BorderRadius.circular(4),
-                                //   child: LinearProgressIndicator(
-                                //     value: cat.percentage,
-                                //     // Make track white to stand out on grey bg
-                                //     backgroundColor: Colors.white,
-                                //     color: cat.color,
-                                //     minHeight: 6,
-                                //   ),
-                                // ),
+                    
                                 Text(
                                   '₦${NumberFormat.currency(symbol: '', decimalDigits: 0).format(cat.totalAmount)}',
                                   style: Theme.of(context).textTheme.bodyMedium!

@@ -1,12 +1,4 @@
-// part of 'auth_bloc.dart';
 
-// @immutable
-// sealed class AuthState {}
-
-// final class AuthInitial extends AuthState {}
-// final class AuthLoading extends AuthState {}
-// final class AuthSucccess extends AuthState {}
-// final class AuthFailed extends AuthState {}
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 

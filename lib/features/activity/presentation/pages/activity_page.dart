@@ -43,62 +43,7 @@ class _ActivityPageState extends State<ActivityPage> {
                 _buildFilterButtons(context, state),
 
                 SizedBox(height: Dimensions.medium),
-                // Expanded(
-                //   child: RefreshIndicator(
-                //     onRefresh: () async {},
-                //     color: AppColors.secondaryColor,
-                //     backgroundColor: AppColors.primaryColor,
-                //     child: CustomScrollView(
-                //       // This ensures you can pull-to-refresh even if the list is empty!
-                //       physics: const AlwaysScrollableScrollPhysics(
-                //         parent: BouncingScrollPhysics(),
-                //       ),
-                //       slivers: [
-                //         if (state.transactions.isEmpty)
-                //           SliverFillRemaining(
-                //             child: Center(
-                //               child: Column(
-                //                 mainAxisAlignment: MainAxisAlignment.center,
-                //                 children: [
-                //                   Icon(
-                //                     Icons.filter_list_off_rounded,
-                //                     size: 64,
-                //                     color: AppColors.greyishColor,
-                //                   ),
-                //                   SizedBox(height: 16),
-                //                   Text(
-                //                     "No transactions\nfound.",
-                //                     textAlign: TextAlign.center,
-                //                     style: Theme.of(context)
-                //                         .textTheme
-                //                         .displaySmall!
-                //                         .copyWith(
-                //                           color: AppColors.greyAccentColor,
-                //                           fontSize: 25,
-                //                           fontWeight: FontWeight.bold,
-                //                         ),
-                //                   ),
-                //                 ],
-                //               ),
-                //             ),
-                //           ),
-                //         SliverList.builder(
-                //           itemCount: state.transactions.length,
-                //           itemBuilder: (context, index) {
-                //             final txn = state.transactions[index];
-                //             final icon =
-                //                 state.categoryIcons[txn.categoryName] ??
-                //                 Icons.category_rounded;
-                //             return TransactionTile(
-                //               transaction: txn,
-                //               categoryIcon: icon,
-                //             );
-                //           },
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
+       
                 Expanded(child: _buildTransactionList(context, state)),
               ],
             ),
@@ -776,55 +721,7 @@ class _ActivityPageState extends State<ActivityPage> {
     );
   }
 
-  // Widget _buildTransactionList(BuildContext context, ActivityState state) {
-  //   return RefreshIndicator(
-  //     onRefresh: () async => context.read<ActivityBloc>().add(LoadTransactions()),
-  //     color: AppColors.secondaryColor,
-  //     backgroundColor: AppColors.primaryColor,
-  //     child: CustomScrollView(
-  //       physics: const AlwaysScrollableScrollPhysics(
-  //         parent: BouncingScrollPhysics(),
-  //       ),
-  //       slivers: [
-  //         if (state.transactions.isEmpty)
-  //           SliverFillRemaining(
-  //             hasScrollBody: false,
-  //             child: Center(
-  //               child: Column(
-  //                 mainAxisAlignment: MainAxisAlignment.center,
-  //                 children: [
-  //                   Icon(Icons.filter_list_off_rounded,
-  //                       size: 64, color: AppColors.greyishColor),
-  //                   const SizedBox(height: 16),
-  //                   Text(
-  //                     "No transactions\nfound.",
-  //                     textAlign: TextAlign.center,
-  //                     style: Theme.of(context).textTheme.displaySmall!.copyWith(
-  //                           color: AppColors.greyAccentColor,
-  //                           fontSize: 25,
-  //                           fontWeight: FontWeight.bold,
-  //                         ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         SliverList.builder(
-  //           itemCount: state.transactions.length,
-  //           itemBuilder: (context, index) {
-  //             final txn = state.transactions[index];
-  //             final icon = state.categoryIcons[txn.categoryName] ??
-  //                 Icons.category_rounded;
-  //             return TransactionTile(
-  //               transaction: txn,
-  //               categoryIcon: icon,
-  //             );
-  //           },
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+
 
   Widget _buildTransactionList(BuildContext context, ActivityState state) {
     // 1. Prepare the Data (ALWAYS Group by Day)

@@ -1,50 +1,4 @@
-// import 'dart:async';
 
-// import 'package:bloc/bloc.dart';
-// import 'package:flutter/material.dart';
-// import 'package:meta/meta.dart';
-// import 'package:naira_sms_pulse/core/database/local_db_service.dart';
-// import 'package:naira_sms_pulse/core/models/transaction_model.dart';
-// import 'package:naira_sms_pulse/features/auth/domian/repository/auth_repo.dart';
-// import 'package:naira_sms_pulse/features/insights/presentation/bloc/insight_state.dart';
-
-// part 'insight_event.dart';
-
-// class InsightBloc extends Bloc<InsightEvent, InsightState> {
-//   final LocalDbService _localDbService;
-//   final AuthRepository _authRepository;
-//   InsightBloc({
-//     required LocalDbService localDbService,
-//     required AuthRepository authRepository,
-//   }) : _localDbService = localDbService,
-//        _authRepository = authRepository,
-//        super(InsightState()) {
-//     on<SetDateFilterEvent>(_setDateFilterEvent);
-//   }
-
-//   FutureOr<void> _setDateFilterEvent(
-//     SetDateFilterEvent event,
-//     Emitter<InsightState> emit,
-//   ) async {
-//     final user = _authRepository.currentUser;
-//     if (user == null) return;
-
-//     try {
-//       final entities = await _localDbService.getTransactionsByDateRange(
-//         userId: user.id,
-//         dateTimeRange: event.timeRange!,
-//       );
-
-//       final transaction = entities.map((entity) => entity.toModel()).toList();
-
-//       final expense = transaction
-//           .where((txn) => txn.transactionType == TransactionType.debit)
-//           .toList();
-
-//       emit(state.copyWith(timeRange: event.timeRange, transactions: expense));
-//     } catch (e) {}
-//   }
-// }
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:fl_chart/fl_chart.dart'; // Import for FlSpot
@@ -81,163 +35,6 @@ class InsightBloc extends Bloc<InsightEvent, InsightState> {
     on<SetTransactionTypeEvent>(_setTransactionTypeEvent);
   }
 
-  // FutureOr<void> _loadTransactions(
-  //   LoadTransactions event,
-  //   Emitter<InsightState> emit,
-  // ) async {
-  //   // emit(state.copyWith(isLoading: true));
-
-  //   final user = _authRepository.currentUser;
-  //   if (user == null) return;
-
-  //   try {
-
-  //     DateTime start = event.timeRange.start;
-  //     DateTime end = event.timeRange.end;
-
-  //     // ✅ UNIVERSAL FIX: Always extend end to 23:59:59
-  //     end = DateTime(end.year, end.month, end.day, 23, 59, 59);
-
-  //     final adjustedRange = DateTimeRange(start: start, end: end);
-  //     // 2. FETCH DATA
-  //     final entities = await _localDbService.getTransactionsByDateRange(
-  //       userId: user.id,
-  //       dateTimeRange: adjustedRange,
-  //     );
-
-  //     final allTransactions = entities.map((e) => e.toModel()).toList();
-  //     final expenses = allTransactions
-  //         .where((txn) => txn.transactionType == TransactionType.debit)
-  //         .toList();
-
-  //     // 3. GENERATE GRAPH SPOTS
-  //     final chartData = _processGraphData(expenses, adjustedRange);
-
-  //     final categoryMap = await _localDbService.getCategoryIconMap();
-
-  //     final categoryNames = await _localDbService.getCategoryNames();
-
-  //     //Donut
-  //     final categories = _calculateCategoryBreakdown(
-  //       expenses,
-  //       _localDbService,
-  //       categoryMap,
-  //     );
-
-  //     final myBanks = await _onboardingDataSource.getSavedBanks();
-  //     // final categoryList = await _localDbService.getCategoryNames();
-
-  //     emit(
-  //       state.copyWith(
-  //         // isLoading: false,
-  //         transactions: expenses,
-  //         categoryIcons: categoryMap,
-  //         myBanks: myBanks,
-  //         timeRange: adjustedRange,
-  //         graphSpots: chartData['spots'] as List<FlSpot>,
-  //         maxAmount: chartData['max'] as double,
-  //         isDailyView: chartData['isDaily'] as bool,
-  //         categorySummary: categories,
-  //         categoryNames: categoryNames,
-  //         selectedBankIndex: 0,
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     print(e);
-  //     // emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
-  //   }
-  // }
-
-  // FutureOr<void> _setFilterEvent(
-  //   SetFilterEvent event,
-  //   Emitter<InsightState> emit,
-  // ) async {
-  //   // emit(state.copyWith(isLoading: true));
-
-  //   final user = _authRepository.currentUser;
-  //   if (user == null) return;
-
-  //   try {
-  //     // 1. SNAPSHOT CURRENT FILTERS (Preserve what is already selected)
-  //     DateTimeRange? targetDateRange = state.timeRange;
-  //     BankModel? targetBank = state.selectedBankIndex != 0
-  //         ? state.myBanks[state.selectedBankIndex - 1]
-  //         : null;
-  //     int? targetBankIndex = state.selectedBankIndex;
-
-  //     // 2. UPDATE ONLY WHAT CHANGED
-  //     // We overwrite the specific filter based on the event index
-  //     if (event.index == 0 && event.timeRange != null) {
-  //       final rawStart = event.timeRange!.start;
-  //       final rawEnd = event.timeRange!.end;
-
-  //       // ✅ UNIVERSAL FIX: Always force the End Date to be 23:59:59
-  //       // This ensures "Jan 25 - Jan 26" covers ALL of Jan 26, not just the first second.
-  //       final adjustedEnd = DateTime(
-  //         rawEnd.year,
-  //         rawEnd.month,
-  //         rawEnd.day,
-  //         23,
-  //         59,
-  //         59,
-  //       );
-
-  //       targetDateRange = DateTimeRange(start: rawStart, end: adjustedEnd);
-  //     } else if (event.index == 1) {
-  //       targetBank = event.selectedBank;
-  //       targetBankIndex = event.selectedbankIndex;
-  //     }
-
-  //     // 3. CALL THE UNIFIED QUERY
-  //     // Pass ALL filters (Old + New) to the database
-  //     final transactionEntity = await _localDbService
-  //         .insightsFilterTransactions(
-  //           userId: user.id,
-  //           dateRange: targetDateRange,
-  //           bankId: targetBank?.id,
-  //         );
-
-  //     final transactions = transactionEntity
-  //         .map((entity) => entity.toModel())
-  //         .toList();
-
-  //     final expenses = transactions
-  //         .where((txn) => txn.transactionType == TransactionType.debit)
-  //         .toList();
-
-  //     // 3. GENERATE GRAPH SPOTS
-  //     final chartData = _processGraphData(expenses, targetDateRange);
-
-  //     final categoryMap = await _localDbService.getCategoryIconMap();
-
-  //     final categoryNames = await _localDbService.getCategoryNames();
-
-  //     //Donut
-  //     final categories = _calculateCategoryBreakdown(
-  //       expenses,
-  //       _localDbService,
-  //       categoryMap,
-  //     );
-
-  //     // 4. EMIT STATE WITH EVERYTHING UPDATED
-  //     emit(
-  //       state.copyWith(
-  //         // isLoading: false,
-  //         transactions: expenses,
-  //         timeRange: targetDateRange,
-  //         selectedBankIndex: targetBankIndex,
-  //         graphSpots: chartData['spots'] as List<FlSpot>,
-  //         maxAmount: chartData['max'] as double,
-  //         isDailyView: chartData['isDaily'] as bool,
-  //         categorySummary: categories,
-  //         categoryNames: categoryNames,
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     print(e);
-  //     //emit(state.copyWith(isLoading: false));
-  //   }
-  // }
 
   // 2. The Event Handler
   FutureOr<void> _setTransactionTypeEvent(
@@ -265,6 +62,7 @@ class InsightBloc extends Bloc<InsightEvent, InsightState> {
       timeRange: event.timeRange,
       bankIndex: 0,
       transactionType: TransactionType.debit, // Default start
+      forceDbFetch: true, // ✅ Force DB hit on initial load/refresh
     );
   }
 
@@ -286,68 +84,104 @@ class InsightBloc extends Bloc<InsightEvent, InsightState> {
     );
   }
 
-  // 4. THE NEW SHARED HELPER (The Brain)
+ 
   Future<void> _refreshData(
     Emitter<InsightState> emit, {
     required DateTimeRange timeRange,
     required int bankIndex,
     required TransactionType transactionType,
+    bool forceDbFetch = false, // Option to force reload (e.g. pull-to-refresh)
   }) async {
     final user = _authRepository.currentUser;
     if (user == null) return;
 
     try {
-      // A. Handle Date Logic (The universal fix we did earlier)
+      // A. PREPARE FILTERS
       DateTime start = timeRange.start;
       DateTime end = timeRange.end;
+      // Always force end of day (Universal Fix)
       end = DateTime(end.year, end.month, end.day, 23, 59, 59);
       final adjustedRange = DateTimeRange(start: start, end: end);
 
-      // B. Handle Bank Logic
       BankModel? targetBank;
       if (bankIndex != 0 && state.myBanks.isNotEmpty) {
         targetBank = state.myBanks[bankIndex - 1];
       }
 
-      // C. Fetch Data
-      final entities = await _localDbService.insightsFilterTransactions(
-        userId: user.id,
-        dateRange: adjustedRange,
-        bankId: targetBank?.id,
-      );
+      // B. THE SMART CACHE LOGIC 🧠
+      // We only fetch from DB if:
+      // 1. It's a forced reload (Pull to refresh)
+      // 2. The Date Range changed
+      // 3. The Bank Filter changed
+      // 4. We don't have any data yet
+      bool needsDbFetch =
+          forceDbFetch ||
+          state.cachedRawList.isEmpty ||
+          state.timeRange != adjustedRange ||
+          state.selectedBankIndex != bankIndex;
 
-      final allTransactions = entities.map((e) => e.toModel()).toList();
+      List<TransactionModel> sourceData;
 
-      // D. FILTER BY TAB (Expense vs Income)
-      final filteredTransactions = allTransactions
+      if (needsDbFetch) {
+        // 🐢 SLOW PATH: Go to Database
+        final entities = await _localDbService.insightsFilterTransactions(
+          userId: user.id,
+          dateRange: adjustedRange,
+          bankId: targetBank?.id,
+        );
+        sourceData = entities.map((e) => e.toModel()).toList();
+      } else {
+        // ⚡ FAST PATH: Use Memory (Instant!)
+        sourceData = state.cachedRawList;
+      }
+
+      // C. FILTER IN MEMORY (Instant)
+      // Now we just pick the Expense or Income items from the big list
+      final filteredTransactions = sourceData
           .where((txn) => txn.transactionType == transactionType)
           .toList();
 
-      // E. Process Visuals
+      // D. PROCESS VISUALS (Graph & Donut)
       final chartData = _processGraphData(filteredTransactions, adjustedRange);
-      final categoryMap = await _localDbService.getCategoryIconMap();
-      final categoryNames = await _localDbService.getCategoryNames();
+
+      // Optimization: Don't re-fetch icons/banks if we already have them
+      Map<String, IconData> iconMap = state.categoryIcons;
+      if (iconMap.isEmpty) {
+        iconMap = await _localDbService.getCategoryIconMap();
+      }
+
+      List<String> catNames = state.categoryNames;
+      if (catNames.isEmpty) {
+        catNames = await _localDbService.getCategoryNames();
+      }
+
+      List<BankModel> banks = state.myBanks;
+      if (banks.isEmpty) {
+        banks = await _onboardingDataSource.getSavedBanks();
+      }
+
       final categories = _calculateCategoryBreakdown(
         filteredTransactions,
         _localDbService,
-        categoryMap,
+        iconMap,
       );
-      final myBanks = await _onboardingDataSource.getSavedBanks();
 
-      // F. Emit
+      // E. EMIT
       emit(
         state.copyWith(
-          transactions: filteredTransactions, // Shows filtered list
+          transactions:
+              filteredTransactions, // The filtered list (Expense OR Income)
+          cachedRawList: sourceData, // ✅ Save the full list for next time
           timeRange: adjustedRange,
           selectedBankIndex: bankIndex,
-          selectedType: transactionType, // ✅ Update the tab state
-          categoryIcons: categoryMap,
-          myBanks: myBanks,
+          selectedType: transactionType,
+          categoryIcons: iconMap,
+          myBanks: banks,
           graphSpots: chartData['spots'] as List<FlSpot>,
           maxAmount: chartData['max'] as double,
           isDailyView: chartData['isDaily'] as bool,
           categorySummary: categories,
-          categoryNames: categoryNames,
+          categoryNames: catNames,
         ),
       );
     } catch (e) {

@@ -3,11 +3,6 @@ part of 'insight_bloc.dart';
 @immutable
 sealed class InsightEvent {}
 
-// class SetDateFilterEvent extends InsightEvent {
-//   final DateTimeRange? timeRange;
-
-//   SetDateFilterEvent({this.timeRange});
-// }
 
 class ChangeCategoryEvent extends InsightEvent {
   final TransactionModel transaction;

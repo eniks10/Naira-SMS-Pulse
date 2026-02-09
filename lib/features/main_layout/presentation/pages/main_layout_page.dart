@@ -5,7 +5,6 @@ import 'package:naira_sms_pulse/features/activity/presentation/pages/activity_pa
 import 'package:naira_sms_pulse/features/home/presentation/pages/home_page.dart';
 import 'package:naira_sms_pulse/features/insights/presentation/pages/insights_page.dart';
 import 'package:naira_sms_pulse/features/main_layout/presentation/cubit/navnavidation_cubit.dart';
-import 'package:naira_sms_pulse/service_locater.dart';
 
 class MainLayoutPage extends StatefulWidget {
   static const String routeName = 'main_layout_page';
@@ -20,10 +19,6 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
     HomePage(),
     ActivityPage(),
     InsightsPage(),
-    // HomePage(),
-
-    // ActivityPage(),
-    // SettingsPage(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -70,15 +65,6 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
                   ),
                   label: 'Insights',
                 ),
-
-                // NavigationDestination(
-                //   icon: Icon(Icons.person_outline_rounded),
-                //   selectedIcon: Icon(
-                //     Icons.person_rounded,
-                //     color: AppColors.secondaryColor,
-                //   ),
-                //   label: 'Profile',
-                // ),
               ],
             ),
           ),
